@@ -1,6 +1,8 @@
 package dev.hilligans.board;
 
-public abstract class Piece {
+import java.util.ArrayList;
+
+public abstract class Piece implements Cloneable {
 
     public int team;
     public Board board;
@@ -35,5 +37,25 @@ public abstract class Piece {
 
     public Direction getPullingDirection() {
         return Direction.NONE;
+    }
+
+    @Override
+    public String toString() {
+        return "Piece{" +
+                "team=" + team +
+                ", x=" + x +
+                ", y=" + y +
+                '}';
+    }
+
+    public void getMoveList(ArrayList<Move> moves) {
+    }
+
+    @Override
+    public Piece clone() {
+        try {
+            return (Piece) super.clone();
+        } catch (Exception ignored) {}
+        return null;
     }
 }
