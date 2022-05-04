@@ -20,7 +20,7 @@ public class SimpleMoveCalculator extends MoveCalculator {
         int biggestMove = 0;
         Move bestMove = null;
         for(Move move : board.getAllValidMoves(player)) {
-            int moveValue = recursiveCalculateMove(board,player,move, 0,player);
+            int moveValue = recursiveCalculateMove(board,player,move, 0);
             if(player == 1) {
                 if (moveValue > biggestMove) {
                     biggestMove = moveValue;
@@ -33,17 +33,18 @@ public class SimpleMoveCalculator extends MoveCalculator {
                 }
             }
         }
+        System.out.println("Score: " + biggestMove);
         return bestMove;
     }
 
-    public int recursiveCalculateMove(Board board, int player, Move move, int depth, int targetPlayer) {
+    public int recursiveCalculateMove(Board board, int player, Move move, int depth) {
         Board board1 = board.duplicate();
         board1.applyMove(move);
-        if(depth >= this.depth) {
+        if(depth < this.depth) {
             player = player == 1 ? 2 : 1;
             int biggestMove = 0;
             for(Move move1 : board1.getAllValidMoves(player)) {
-                int moveValue = recursiveCalculateMove(board1,player,move1,depth + 1,targetPlayer);
+                int moveValue = recursiveCalculateMove(board1,player,move1,depth + 1);
                 if(player == 1) {
                     if (moveValue > biggestMove) {
                         biggestMove = moveValue;
@@ -54,6 +55,7 @@ public class SimpleMoveCalculator extends MoveCalculator {
                     }
                 }
             }
+            System.out.println("Scores: " + biggestMove);
             return biggestMove;
         } else {
            return calculateBoard(board1);
@@ -64,6 +66,18 @@ public class SimpleMoveCalculator extends MoveCalculator {
         for(int x = 0; x < boardTickDepth; x++) {
             board.tick();
         }
-        return board.getGameState() == 2 ? -1 : 1;
+        int player1Pieces = board.getPieces(1);
+        int player2Pieces = board.getPieces(2);
+        if(player1Pieces > player2Pieces) {
+            System.out.println("10");
+            return 10;
+        } else if(player1Pieces < player2Pieces) {
+            System.out.println("-10");
+            return  -10;
+
+        }
+        System.out.println("0");
+        return 0;
+        //return board.getGameState() == 2 ? -1 : 1;
     }
 }

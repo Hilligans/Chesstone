@@ -63,6 +63,21 @@ public class Board {
         return moves;
     }
 
+    public int getPieces(int player) {
+        int pieces = 0;
+        for(int x = 0; x < 8; x++) {
+            for(int y = 0; y < 8; y++) {
+                Piece piece = getPiece(x,y);
+                if(piece != null) {
+                    if(piece.team == player) {
+                        pieces++;
+                    }
+                }
+            }
+        }
+        return pieces;
+    }
+
     public Board duplicate() {
         Board newBoard = new Board();
         for(int x = 0; x < 8; x++) {

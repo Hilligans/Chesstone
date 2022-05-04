@@ -1,0 +1,7 @@
+server:
+  ssl:
+    key-store: classpath:keystore/spring-server.p12
+    key-store-password: password
+    key-store-type: pkcs12
+    key-password: password
+  port: 443
