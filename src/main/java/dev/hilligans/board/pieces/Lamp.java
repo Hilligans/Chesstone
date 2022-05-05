@@ -22,4 +22,9 @@ public class Lamp extends Piece {
             }
         }
     }
+
+    @Override
+    protected int getID() {
+        return 7;
+    }
 }

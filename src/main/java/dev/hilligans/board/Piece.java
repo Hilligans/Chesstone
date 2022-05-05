@@ -51,6 +51,16 @@ public abstract class Piece implements Cloneable {
     public void getMoveList(ArrayList<Move> moves) {
     }
 
+    protected abstract int getID();
+
+    int getExtraData() {
+        return 0;
+    }
+
+    public short getPacket() {
+        return (short) ((team == 2 ? 1 : 0) | getID() << 1 | getExtraData() << 4);
+    }
+
     @Override
     public Piece clone() {
         try {

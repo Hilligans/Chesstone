@@ -95,4 +95,15 @@ public class Board {
         Piece piece = getPiece(move.startX,move.startY);
         setPiece(move.endX,move.endY,piece);
     }
+
+    public short[] getBoardList() {
+        short[] list = new short[64];
+        for(int y = 0; y < 8; y++) {
+            for (int x = 0; x < 8; x++) {
+                Piece piece = getPiece(x,y);
+                list[y * 8 + x] = piece != null ? piece.getPacket() : 0;
+            }
+        }
+        return list;
+    }
 }

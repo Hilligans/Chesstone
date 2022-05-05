@@ -27,6 +27,11 @@ public class Redstone extends Piece {
     }
 
     @Override
+    protected int getID() {
+        return 1;
+    }
+
+    @Override
     public Direction getFacingDirection() {
         return direction;
     }

@@ -75,4 +75,9 @@ public class RedstoneTorch extends Piece {
             }
         }
     }
+
+    @Override
+    protected int getID() {
+        return 3;
+    }
 }

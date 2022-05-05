@@ -15,4 +15,9 @@ public class TargetBlock extends Piece {
     public Direction getFacingDirection() {
         return Direction.ALL;
     }
+
+    @Override
+    protected int getID() {
+        return 4;
+    }
 }

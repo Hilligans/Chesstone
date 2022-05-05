@@ -2,14 +2,13 @@ package dev.hilligans.board.pieces;
 
 import dev.hilligans.board.Piece;
 
-public class Repeater extends Piece {
-
-    public Repeater(int team) {
+public class Block extends Piece {
+    public Block(int team) {
         super(team);
     }
 
     @Override
     protected int getID() {
-        return 5;
+        return 2;
     }
 }
