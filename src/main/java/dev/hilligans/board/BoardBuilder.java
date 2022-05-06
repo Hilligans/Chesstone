@@ -8,7 +8,7 @@ public class BoardBuilder {
         Board board = new Board();
         for(int x = 0; x < 8; x++) {
             board.setPiece(x,1,new Block(1));
-            board.setPiece(x,7,new Block(2));
+            board.setPiece(x,6,new Block(2));
         }
         board.setPiece(0,0,new RedstoneTorch(1));
         board.setPiece(1,0,new TargetBlock(1));

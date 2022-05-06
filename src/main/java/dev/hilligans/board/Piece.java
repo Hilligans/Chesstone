@@ -1,15 +1,20 @@
 package dev.hilligans.board;
 
+import dev.hilligans.board.movement.MovementController;
+
 import java.util.ArrayList;
 
 public abstract class Piece implements Cloneable {
 
     public int team;
     public Board board;
+    public MovementController movementController;
     public int x,y;
 
-    public Piece(int team) {
+    public Piece(int team, MovementController movementController) {
         this.team = team;
+        this.movementController = movementController;
+        movementController.piece = this;
     }
 
     public void setPos(int x, int y) {
@@ -39,6 +44,22 @@ public abstract class Piece implements Cloneable {
         return Direction.NONE;
     }
 
+    public boolean hardPowers() {
+        return false;
+    }
+
+    public int hardPowerLevel() {
+        return 0;
+    }
+
+    public OtherMove[] getModeMoves() {
+        return new OtherMove[0];
+    }
+
+    public OtherMove[] getRotationMoves() {
+        return new OtherMove[0];
+    }
+
     @Override
     public String toString() {
         return "Piece{" +
@@ -49,11 +70,12 @@ public abstract class Piece implements Cloneable {
     }
 
     public void getMoveList(ArrayList<Move> moves) {
+        movementController.getMoveList(moves);
     }
 
-    protected abstract int getID();
+    public abstract int getID();
 
-    int getExtraData() {
+    public int getExtraData() {
         return 0;
     }
 

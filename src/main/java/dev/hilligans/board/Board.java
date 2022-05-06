@@ -1,6 +1,7 @@
 package dev.hilligans.board;
 
 import dev.hilligans.board.pieces.Lamp;
+import dev.hilligans.board.pieces.RedstoneBlock;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -16,8 +17,10 @@ public class Board {
 
     public void setPiece(int x, int y, Piece piece) {
         board[x][y] = piece;
-        piece.board = this;
-        piece.setPos(x,y);
+        if(piece != null) {
+            piece.board = this;
+            piece.setPos(x, y);
+        }
     }
 
     @Nullable
@@ -25,8 +28,38 @@ public class Board {
         return board[x][y];
     }
 
+    public boolean validSquare(int x, int y) {
+        return 7 >= x && x >= 0 && 7 >= y && y >= 0;
+    }
+
     public Piece[] getSurroundingPieces(int x, int y) {
         return null;
+    }
+
+    static Piece redstoneBlock = new RedstoneBlock();
+    public Piece[] getSurroundingSpaces(int x, int y) {
+        Piece[] pieces = new Piece[4];
+        if(y != 0 & y != 7) {
+            if(x == 0) {
+                pieces[0] = redstoneBlock;
+            }
+            if(x == 7) {
+                pieces[2] = redstoneBlock;
+            }
+        }
+        if (validSquare(x + 1, y)) {
+            pieces[2] = getPiece(x + 1,y);
+        }
+        if (validSquare(x - 1, y)) {
+            pieces[0] = getPiece(x - 1,y);
+        }
+        if (validSquare(x, y + 1)) {
+            pieces[3] = getPiece(x,y + 1);
+        }
+        if (validSquare(x, y - 1)) {
+            pieces[1] = getPiece(x, y - 1);
+        }
+        return pieces;
     }
 
     public int getGameState() {
@@ -46,6 +79,17 @@ public class Board {
         }
 
  */
+    }
+
+    public void update() {
+        for(int x = 0; x < 8; x++) {
+            for(int y = 0; y < 8; y++) {
+                Piece piece = getPiece(x,y);
+                if(piece != null) {
+                    piece.tick();
+                }
+            }
+        }
     }
 
     public ArrayList<Move> getAllValidMoves(int player) {
@@ -93,7 +137,11 @@ public class Board {
 
     public void applyMove(Move move) {
         Piece piece = getPiece(move.startX,move.startY);
+        int startX = piece.x;
+        int startY = piece.y;
         setPiece(move.endX,move.endY,piece);
+        setPiece(startX,startY,null);
+        piece.movementController.performMove(startX,startY,move.endX,move.endY);
     }
 
     public short[] getBoardList() {
