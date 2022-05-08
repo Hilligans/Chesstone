@@ -36,6 +36,8 @@ public abstract class Piece implements Cloneable {
 
     public void tick() {}
 
+    public void update() {}
+
     public Direction getFacingDirection() {
         return Direction.NONE;
     }

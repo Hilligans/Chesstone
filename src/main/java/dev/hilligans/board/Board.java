@@ -28,6 +28,22 @@ public class Board {
         return board[x][y];
     }
 
+    @Nullable
+    public Piece getPieceOutside(int x, int y) {
+        if(y != 0 & y != 7) {
+            if(x == -1) {
+                return redstoneBlock;
+            }
+            if(x == 8) {
+                return redstoneBlock;
+            }
+        }
+        if(validSquare(x,y)) {
+            return getPiece(x,y);
+        }
+        return null;
+    }
+
     public boolean validSquare(int x, int y) {
         return 7 >= x && x >= 0 && 7 >= y && y >= 0;
     }
@@ -41,23 +57,23 @@ public class Board {
         Piece[] pieces = new Piece[4];
         if(y != 0 & y != 7) {
             if(x == 0) {
-                pieces[0] = redstoneBlock;
+                pieces[3] = redstoneBlock;
             }
             if(x == 7) {
-                pieces[2] = redstoneBlock;
+                pieces[1] = redstoneBlock;
             }
         }
         if (validSquare(x + 1, y)) {
-            pieces[2] = getPiece(x + 1,y);
+            pieces[1] = getPiece(x + 1,y);
         }
         if (validSquare(x - 1, y)) {
-            pieces[0] = getPiece(x - 1,y);
+            pieces[3] = getPiece(x - 1,y);
         }
         if (validSquare(x, y + 1)) {
-            pieces[3] = getPiece(x,y + 1);
+            pieces[0] = getPiece(x,y + 1);
         }
         if (validSquare(x, y - 1)) {
-            pieces[1] = getPiece(x, y - 1);
+            pieces[2] = getPiece(x, y - 1);
         }
         return pieces;
     }
@@ -67,6 +83,14 @@ public class Board {
     }
 
     public void tick() {
+        for(int x = 0; x < 8; x++) {
+            for(int y = 0; y < 8; y++) {
+                Piece piece = getPiece(x,y);
+                if(piece != null) {
+                    piece.tick();
+                }
+            }
+        }
 /*
         if(gameState == -1) {
             if (yellowKing.extended && blueKing.extended) {
@@ -86,7 +110,7 @@ public class Board {
             for(int y = 0; y < 8; y++) {
                 Piece piece = getPiece(x,y);
                 if(piece != null) {
-                    piece.tick();
+                    piece.update();
                 }
             }
         }

@@ -46,33 +46,54 @@ public enum Direction {
         this.twoSided = true;
     }
 
+    public Direction getJoinedInverse() {
+      //  System.out.println(directions[mapped(x,y) | mapped(-x,-y)]);
+        return directions[mapped(x,y) | mapped(-x,-y)];
+    }
+
     static {
         for(Direction direction : Direction.values()) {
             directions[direction.redstoneShape] = direction;
         }
     }
 
-    //FIX THIS
     public boolean facesTowards(int blockX, int blockY, int sourceX, int sourceY) {
         if(!twoSided) {
-            return blockX == sourceX + x && blockY == sourceY + y;
+            return sourceX - blockX == x && sourceY - blockY == y;
         } else {
-            return blockX == sourceX + x && blockY == sourceY + y || blockX == sourceX + otherX && blockY == sourceY + y || blockX == sourceX + x && blockY == sourceY + otherY || blockX == sourceX + otherX && blockY == sourceY + otherY;
+            int deltaX = sourceX - blockX;
+            int deltaY = sourceY - blockY;
+            if(deltaX == 0) {
+                if(deltaY == 1) {
+                    return (redstoneShape & 1) != 0;
+                } else {
+                    return (redstoneShape & 4) != 0;
+                }
+            } else if(deltaY == 0) {
+                if(deltaX == 1) {
+                    return (redstoneShape & 2) != 0;
+                } else {
+                    return (redstoneShape & 8) != 0;
+                }
+            }
+            return false;
         }
     }
 
-    static int mapped(int x, int y) {
+
+
+    public static int mapped(int x, int y) {
         int val = 0;
         if(y == 1) {
-            val |= 8;
+            val |= 1;
         } else if(y == -1) {
-            val |= 2;
+            val |= 4;
         }
 
         if(x == 1) {
-            val |= 4;
+            val |= 2;
         } else if(x == -1) {
-            val |= 1;
+            val |= 8;
         }
         return val;
     }

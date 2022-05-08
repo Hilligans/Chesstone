@@ -19,6 +19,11 @@ public class RedstoneTorch extends Piece {
     }
 
     @Override
+    public Direction getFacingDirection() {
+        return Direction.NONE;
+    }
+
+    @Override
     public int getPowerLevel() {
         return 15;
     }

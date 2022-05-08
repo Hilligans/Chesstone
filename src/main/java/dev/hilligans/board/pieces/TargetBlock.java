@@ -16,6 +16,12 @@ public class TargetBlock extends Piece {
     public int hardPowerLevel() {
         return hardPower;
     }
+
+    @Override
+    public int getPowerLevel() {
+        return powerLevel;
+    }
+
     @Override
     public Direction getFacingDirection() {
         return Direction.ALL;
@@ -26,20 +32,19 @@ public class TargetBlock extends Piece {
         return Direction.ALL;
     }
 
-    private void updatePower() {
+    @Override
+    public void update() {
         int power = 0;
         int hPower = 0;
         Piece[] pieces = board.getSurroundingSpaces(x, y);
         for (int x = 0; x < 4; x++) {
             Piece piece = pieces[x];
             if (piece != null) {
-                System.out.println(piece.getID());
-                if(piece.getFacingDirection().facesTowards(this.x,this.y,piece.x,piece.y)) {
+                if(piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y)) {
                     if(piece.hardPowers()) {
-                        hPower = Math.max(power, piece.hardPowerLevel());
-                    } else {
-                        power = Math.max(power, piece.getPowerLevel());
+                        hPower = Math.max(hPower, piece.hardPowerLevel());
                     }
+                    power = Math.max(power, piece.getPowerLevel());
                 }
             }
         }
@@ -51,15 +56,10 @@ public class TargetBlock extends Piece {
         if(power != old || old1 != hPower) {
             for(int x = 0; x < 4; x++) {
                 if(pieces[x] != null) {
-                    pieces[x].tick();
+                    pieces[x].update();
                 }
             }
         }
-    }
-
-    @Override
-    public void tick() {
-        updatePower();
     }
 
     @Override

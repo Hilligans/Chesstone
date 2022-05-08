@@ -6,8 +6,8 @@ import dev.hilligans.board.movement.MovementController;
 
 public class Redstone extends Piece {
 
-    int powerLevel;
-    int shape;
+    public int powerLevel;
+    public int shape;
 
     public Redstone() {
         super(0, new MovementController());
@@ -19,7 +19,7 @@ public class Redstone extends Piece {
     }
 
     @Override
-    public void tick() {
+    public void update() {
         updateDirection();
         updatePower();
     }
@@ -55,10 +55,14 @@ public class Redstone extends Piece {
         for(int x = 0; x < 4; x++) {
             if(pieces[x] != null) {
                 Direction direction1 = pieces[x].getPullingDirection();
-                if((direction1.redstoneShape & 1 << x) != 0) {
+                if((direction1.redstoneShape & (1 << x)) != 0) {
                     shape |= 1 << x;
                 }
             }
+        }
+        if(y == 0) {
+            System.out.println(shape);
+            System.out.println(x);
         }
         if(shape == 1 || shape == 4) {
             shape = 5;
@@ -72,7 +76,7 @@ public class Redstone extends Piece {
     }
 
     private void updatePower() {
-        int power = powerLevel;
+        int power = 0;
         Piece[] pieces = board.getSurroundingSpaces(x, y);
         for (int x = 0; x < 4; x++) {
             Piece piece = pieces[x];
@@ -86,7 +90,7 @@ public class Redstone extends Piece {
                     }
                 } else if(piece.getFacingDirection().facesTowards(this.x,this.y,piece.x,piece.y)) {
                     power = Math.max(power, piece.getPowerLevel());
-                } else {
+                } else if(!(piece instanceof Comparator || piece instanceof Repeater)) {
                     power = Math.max(power, piece.getPowerLevel());
                 }
             }
@@ -97,7 +101,7 @@ public class Redstone extends Piece {
         if(power != old) {
             for(int x = 0; x < 4; x++) {
                 if(pieces[x] != null) {
-                    pieces[x].tick();
+                    pieces[x].update();
                 }
             }
         }

@@ -7,11 +7,12 @@ import dev.hilligans.board.movement.BishopMovementController;
 import dev.hilligans.board.movement.MovementController;
 
 public class Repeater extends Piece {
-
+    
     public int rotation = 0;
     boolean powered = false;
-    int delay = 0;
-    int delayTimeout;
+    public int delay = 0;
+    public int delayTimeout;
+    boolean tick = false;
 
     public Repeater(int team) {
         super(team, new BishopMovementController());
@@ -50,29 +51,29 @@ public class Repeater extends Piece {
         return 5;
     }
 
-    private void updatePower() {
+    @Override
+    public Direction getFacingDirection() {
+        return Direction.directions[1 << rotation];
+    }
+
+    @Override
+    public Direction getPullingDirection() {
+        return Direction.directions[1 << rotation].getJoinedInverse();
+    }
+
+    @Override
+    public void update() {
         Direction direction = Direction.directions[1 << rotation];
-        Piece[] pieces = board.getSurroundingSpaces(x, y);
         boolean pow = false;
-        for (int x = 0; x < 4; x++) {
-            Piece piece = pieces[x];
-            if (piece != null) {
-                //if (direction.facesTowards(piece.x,piece.y,this.x,this.y)) {
-                    if(piece.getPowerLevel() != 0) {
-                        pow = true;
-                    }
-             //   }
+        Piece piece = board.getPieceOutside(this.x - direction.x, this.y - direction.y);
+        if(piece != null) {
+            if(piece.getPowerLevel() != 0 || piece.hardPowerLevel() != 0) {
+                pow = true;
             }
         }
         if(pow != powered) {
-            powered = pow;
-            for(int x = 0; x < 4; x++) {
-                if(pieces[x] != null) {
-                    pieces[x].tick();
-                }
-            }
+            tick = true;
         }
-        powered = pow;
     }
 
     @Override
@@ -87,11 +88,37 @@ public class Repeater extends Piece {
 
     @Override
     public void tick() {
-        updatePower();
+        if(tick) {
+            if (++delayTimeout >= delay + 1) {
+                delayTimeout = 0;
+                tick = false;
+                updateRedstone();
+            }
+        }
+    }
+
+    public void updateRedstone() {
+        Direction direction = Direction.directions[1 << rotation];
+        Piece[] pieces = board.getSurroundingSpaces(x, y);
+        boolean pow = false;
+        Piece piece = board.getPieceOutside(this.x - direction.x, this.y - direction.y);
+        if (piece != null) {
+            if (piece.getPowerLevel() != 0 || piece.hardPowerLevel() != 0) {
+                pow = true;
+            }
+        }
+        if (pow != powered) {
+            powered = pow;
+            for (int x = 0; x < 4; x++) {
+                if (pieces[x] != null) {
+                    pieces[x].update();
+                }
+            }
+        }
     }
 
     @Override
     public int getExtraData() {
-        return (powered ? 1 : 0) | rotation << 1 | delay << 3;
+        return (powered ? 1 : 0) | (rotation) << 1 | delay << 3;
     }
 }

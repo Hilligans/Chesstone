@@ -12,20 +12,17 @@ public class Lamp extends Piece {
     }
 
     @Override
-    public void tick() {
-        super.tick();
+    public void update() {
         Piece[] pieces = board.getSurroundingSpaces(x,y);
         for(Piece piece : pieces) {
             if(piece != null) {
-                if (piece.getFacingDirection().facesTowards(x, y, piece.x, piece.y)) {
+                if (piece.getFacingDirection().facesTowards(piece.x, piece.y,x,y)) {
                     if (piece.getPowerLevel() != 0) {
                         extended = true;
                     }
                 }
             }
         }
-
-
     }
 
     @Override

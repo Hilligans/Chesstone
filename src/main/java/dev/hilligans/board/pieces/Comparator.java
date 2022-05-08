@@ -10,7 +10,10 @@ public class Comparator extends Piece {
 
     public int rotation = 0;
     int powerLevel;
-    boolean subtract;
+    int delayTimeout = 0;
+    public boolean subtract;
+    public boolean tick;
+
     public Comparator(int team) {
         super(team, new QueenMovementController());
         rotation = team == 2 ? 2 : 0;
@@ -25,6 +28,12 @@ public class Comparator extends Piece {
     public Direction getPullingDirection() {
         return Direction.ALL;
     }
+
+    @Override
+    public Direction getFacingDirection() {
+        return Direction.directions[1 << rotation];
+    }
+
 
     @Override
     public int getID() {
@@ -46,6 +55,99 @@ public class Comparator extends Piece {
                 new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | rotation << 1 | (0) << 3)),
                 new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | rotation << 1 | (1) << 3))};
     }
+
+
+
+    @Override
+    public void update() {
+        Direction direction = Direction.directions[1 << rotation];
+        int poweredLevel = 0;
+        int sub = 0;
+        Piece piece = board.getPieceOutside(this.x - direction.x, this.y - direction.y);
+        if(piece != null) {
+            poweredLevel = Math.max(poweredLevel, Math.max(piece.getPowerLevel(), piece.hardPowerLevel()));
+        }
+        piece = board.getPieceOutside(this.x - direction.y, this.y - direction.x);
+        if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) || piece instanceof RedstoneBlock) {
+            sub = Math.max(sub,Math.max(piece.getPowerLevel(),piece.hardPowerLevel()));
+        }
+        piece = board.getPieceOutside(this.x + direction.y, this.y + direction.x);
+        if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) || piece instanceof RedstoneBlock) {
+            sub = Math.max(sub,Math.max(piece.getPowerLevel(),piece.hardPowerLevel()));
+        }
+        if(subtract) {
+            poweredLevel = Math.max(0, poweredLevel - sub);
+        } else {
+            if(sub > poweredLevel) {
+                poweredLevel = 0;
+            }
+        }
+
+        if(poweredLevel != this.powerLevel) {
+            tick = true;
+        }
+    }
+
+    @Override
+    public int getPowerLevel() {
+        return powerLevel;
+    }
+
+    @Override
+    public int hardPowerLevel() {
+        return powerLevel;
+    }
+
+    @Override
+    public void tick() {
+        if(tick) {
+            if (++delayTimeout >= 1) {
+                delayTimeout = 0;
+                tick = false;
+                updateRedstone();
+            }
+        }
+    }
+
+    public void updateRedstone() {
+        Direction direction = Direction.directions[1 << rotation];
+        Piece[] pieces = board.getSurroundingSpaces(x, y);
+        int poweredLevel = 0;
+        int sub = 0;
+        Piece piece = board.getPieceOutside(this.x - direction.x, this.y - direction.y);
+        if(piece != null) {
+            poweredLevel = Math.max(poweredLevel, Math.max(piece.getPowerLevel(), piece.hardPowerLevel()));
+        }
+        piece = board.getPieceOutside(this.x - direction.y, this.y - direction.x);
+        if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) || piece instanceof RedstoneBlock) {
+            sub = Math.max(sub,Math.max(piece.getPowerLevel(),piece.hardPowerLevel()));
+        }
+        piece = board.getPieceOutside(this.x + direction.y, this.y + direction.x);
+        if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) || piece instanceof RedstoneBlock) {
+            sub = Math.max(sub,Math.max(piece.getPowerLevel(),piece.hardPowerLevel()));
+        }
+        if(subtract) {
+            poweredLevel = Math.max(0, poweredLevel - sub);
+        } else {
+            if(sub > poweredLevel) {
+                poweredLevel = 0;
+            }
+        }
+
+
+        if(poweredLevel != this.powerLevel) {
+            this.powerLevel = poweredLevel;
+            for (int x = 0; x < 4; x++) {
+                if (pieces[x] != null) {
+                    pieces[x].update();
+                }
+            }
+        }
+    }
+
+
+
+
 
     private int build(int data) {
         return (short) ((team == 2 ? 1 : 0) | getID() << 1 | data << 4);

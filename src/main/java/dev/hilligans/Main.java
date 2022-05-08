@@ -2,8 +2,10 @@ package dev.hilligans;
 
 import dev.hilligans.ai.SimpleMoveCalculator;
 import dev.hilligans.board.*;
+import dev.hilligans.board.pieces.Comparator;
 import dev.hilligans.board.pieces.Redstone;
 import dev.hilligans.board.pieces.RedstoneTorch;
+import dev.hilligans.board.pieces.Repeater;
 import dev.hilligans.spring.SpringHandler;
 import dev.hilligans.util.ConsoleReader;
 import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
@@ -42,8 +44,26 @@ public class Main {
         board.applyMove(new Move(board.getPiece(6,0),7,2));
         board.applyMove(new Move(board.getPiece(7,2),5,3));
         board.applyMove(new Move(board.getPiece(5,2),3,4));
+        board.applyMove(new Move(board.getPiece(3,4),1,4));
+        board.applyMove(new Move(board.getPiece(1,4),1,5));
+        ((Repeater)board.getPiece(2,0)).rotation = 1;
+        ((Repeater)board.getPiece(2,0)).delay = 1;
+
+        board.applyMove(new Move(board.getPiece(1,0),0,2));
+        board.applyMove(new Move(board.getPiece(1,5),1,3));
+        ((Comparator)board.getPiece(1,3)).rotation = 2;
+        ((Comparator)board.getPiece(1,3)).subtract = true;
+        //board.applyMove(new Move(board.getPiece(0,2),2,4));
+        board.setPiece(2,3,new Redstone());
+        board.setPiece(2,4,null);
 
         board.update();
+        board.tick();
+        board.tick();
+       // board.tick();
+       // board.tick();
+
+        System.out.println("SHAPE:" + ((Redstone)board.getPiece(0,0)).shape);
 
         ArrayList<Move> moves = board.getAllValidMoves(1);
 
