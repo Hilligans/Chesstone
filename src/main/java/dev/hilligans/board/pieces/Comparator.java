@@ -13,6 +13,7 @@ public class Comparator extends Piece {
     int delayTimeout = 0;
     public boolean subtract;
     public boolean tick;
+    public int newState = 0;
 
     public Comparator(int team) {
         super(team, new QueenMovementController());
@@ -84,6 +85,7 @@ public class Comparator extends Piece {
         }
 
         if(poweredLevel != this.powerLevel) {
+            newState = poweredLevel;
             tick = true;
         }
     }
@@ -104,43 +106,18 @@ public class Comparator extends Piece {
             if (++delayTimeout >= 1) {
                 delayTimeout = 0;
                 tick = false;
+                powerLevel = newState;
                 updateRedstone();
             }
         }
     }
 
     public void updateRedstone() {
-        Direction direction = Direction.directions[1 << rotation];
         Piece[] pieces = board.getSurroundingSpaces(x, y);
-        int poweredLevel = 0;
-        int sub = 0;
-        Piece piece = board.getPieceOutside(this.x - direction.x, this.y - direction.y);
-        if(piece != null) {
-            poweredLevel = Math.max(poweredLevel, Math.max(piece.getPowerLevel(), piece.hardPowerLevel()));
-        }
-        piece = board.getPieceOutside(this.x - direction.y, this.y - direction.x);
-        if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) || piece instanceof RedstoneBlock) {
-            sub = Math.max(sub,Math.max(piece.getPowerLevel(),piece.hardPowerLevel()));
-        }
-        piece = board.getPieceOutside(this.x + direction.y, this.y + direction.x);
-        if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) || piece instanceof RedstoneBlock) {
-            sub = Math.max(sub,Math.max(piece.getPowerLevel(),piece.hardPowerLevel()));
-        }
-        if(subtract) {
-            poweredLevel = Math.max(0, poweredLevel - sub);
-        } else {
-            if(sub > poweredLevel) {
-                poweredLevel = 0;
-            }
-        }
 
-
-        if(poweredLevel != this.powerLevel) {
-            this.powerLevel = poweredLevel;
-            for (int x = 0; x < 4; x++) {
-                if (pieces[x] != null) {
-                    pieces[x].update();
-                }
+        for (int x = 0; x < 4; x++) {
+            if (pieces[x] != null) {
+                pieces[x].update();
             }
         }
     }

@@ -60,10 +60,6 @@ public class Redstone extends Piece {
                 }
             }
         }
-        if(y == 0) {
-            System.out.println(shape);
-            System.out.println(x);
-        }
         if(shape == 1 || shape == 4) {
             shape = 5;
         }
@@ -88,7 +84,7 @@ public class Redstone extends Piece {
                     if (piece.hardPowerLevel() != 0) {
                         power = Math.max(power, piece.hardPowerLevel());
                     }
-                } else if(piece.getFacingDirection().facesTowards(this.x,this.y,piece.x,piece.y)) {
+                } else if(piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y)) {
                     power = Math.max(power, piece.getPowerLevel());
                 } else if(!(piece instanceof Comparator || piece instanceof Repeater)) {
                     power = Math.max(power, piece.getPowerLevel());

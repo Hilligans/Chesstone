@@ -26,6 +26,7 @@ public class Main {
        //         System.exit(0);
       //      }
       //  }).start();
+        /*
 
         Board board = BoardBuilder.buildStandardBoard();
         //System.out.println(board.getPiece(0,1));
@@ -57,13 +58,34 @@ public class Main {
         board.setPiece(2,3,new Redstone());
         board.setPiece(2,4,null);
 
+        Repeater repeater = new Repeater(2);
+        repeater.rotation = 3;
+        board.setPiece(6,7,repeater);
+        board.setPiece(5,7,new Redstone());
+
+        board.update();
+        board.tick();
+        board.tick();
+
+         */
+        Board board = new Board();
+        board.setPiece(1,0,new Redstone());
+        board.setPiece(1,1,new Redstone());
+        board.setPiece(2,0,new Redstone());
+        Repeater repeater = new Repeater(1);
+        repeater.delay = 1;
+        board.setPiece(2,1,repeater);
+        Comparator comparator = new Comparator(2);
+        comparator.subtract = true;
+        board.setPiece(1,2,comparator);
+        board.setPiece(1,3,new RedstoneTorch(2));
+        board.setPiece(2,2,new Redstone());
+
         board.update();
         board.tick();
         board.tick();
        // board.tick();
        // board.tick();
-
-        System.out.println("SHAPE:" + ((Redstone)board.getPiece(0,0)).shape);
 
         ArrayList<Move> moves = board.getAllValidMoves(1);
 

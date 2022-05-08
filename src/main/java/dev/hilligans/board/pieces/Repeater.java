@@ -13,6 +13,7 @@ public class Repeater extends Piece {
     public int delay = 0;
     public int delayTimeout;
     boolean tick = false;
+    public boolean newState;
 
     public Repeater(int team) {
         super(team, new BishopMovementController());
@@ -72,6 +73,7 @@ public class Repeater extends Piece {
             }
         }
         if(pow != powered) {
+            newState = pow;
             tick = true;
         }
     }
@@ -89,8 +91,9 @@ public class Repeater extends Piece {
     @Override
     public void tick() {
         if(tick) {
-            if (++delayTimeout >= delay + 1) {
+            if (delayTimeout++ >= delay + 1) {
                 delayTimeout = 0;
+                powered = newState;
                 tick = false;
                 updateRedstone();
             }
@@ -98,23 +101,13 @@ public class Repeater extends Piece {
     }
 
     public void updateRedstone() {
-        Direction direction = Direction.directions[1 << rotation];
         Piece[] pieces = board.getSurroundingSpaces(x, y);
-        boolean pow = false;
-        Piece piece = board.getPieceOutside(this.x - direction.x, this.y - direction.y);
-        if (piece != null) {
-            if (piece.getPowerLevel() != 0 || piece.hardPowerLevel() != 0) {
-                pow = true;
+        for (int x = 0; x < 4; x++) {
+            if (pieces[x] != null) {
+                pieces[x].update();
             }
         }
-        if (pow != powered) {
-            powered = pow;
-            for (int x = 0; x < 4; x++) {
-                if (pieces[x] != null) {
-                    pieces[x].update();
-                }
-            }
-        }
+
     }
 
     @Override
