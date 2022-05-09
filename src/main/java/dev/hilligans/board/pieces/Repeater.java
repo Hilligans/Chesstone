@@ -15,6 +15,8 @@ public class Repeater extends Piece {
     boolean tick = false;
     public boolean newState;
 
+    public boolean locked;
+
     public Repeater(int team) {
         super(team, new BishopMovementController());
         rotation = team == 2 ? 2 : 0;
@@ -23,19 +25,19 @@ public class Repeater extends Piece {
     @Override
     public OtherMove[] getRotationMoves() {
         return new OtherMove[] {
-                new OtherMove(this,build((powered ? 1 : 0) | 0 << 1 | delay << 3)),
-                new OtherMove(this,build((powered ? 1 : 0) | 1 << 1 | delay << 3)),
-                new OtherMove(this,build((powered ? 1 : 0) | 2 << 1 | delay << 3)),
-                new OtherMove(this,build((powered ? 1 : 0) | 3 << 1 | delay << 3))};
+                rotation != 0 ? new OtherMove(this,build((powered ? 1 : 0) | 0 << 1 | delay << 3)) : null,
+                rotation != 1 ? new OtherMove(this,build((powered ? 1 : 0) | 1 << 1 | delay << 3)) : null,
+                rotation != 2 ? new OtherMove(this,build((powered ? 1 : 0) | 2 << 1 | delay << 3)) : null,
+                rotation != 3 ? new OtherMove(this,build((powered ? 1 : 0) | 3 << 1 | delay << 3)) : null};
     }
 
     @Override
     public OtherMove[] getModeMoves() {
         return new OtherMove[] {
-                new OtherMove(this,build((powered ? 1 : 0) | rotation << 1 | 0 << 3)),
-                new OtherMove(this,build((powered ? 1 : 0) | rotation << 1 | 1 << 3)),
-                new OtherMove(this,build((powered ? 1 : 0) | rotation << 1 | 2 << 3)),
-                new OtherMove(this,build((powered ? 1 : 0) | rotation << 1 | 3 << 3))};
+                delay != 0 ? new OtherMove(this,build((powered ? 1 : 0) | rotation << 1 | 0 << 3)) : null,
+                delay != 1 ? new OtherMove(this,build((powered ? 1 : 0) | rotation << 1 | 1 << 3)) : null,
+                delay != 2 ? new OtherMove(this,build((powered ? 1 : 0) | rotation << 1 | 2 << 3)) : null,
+                delay != 3 ? new OtherMove(this,build((powered ? 1 : 0) | rotation << 1 | 3 << 3)) : null};
     }
 
     private int build(int data) {
@@ -72,6 +74,23 @@ public class Repeater extends Piece {
                 pow = true;
             }
         }
+        piece = board.getPieceOutside(this.x - direction.y, this.y - direction.x);
+        if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) && (piece instanceof Comparator || piece instanceof Repeater)) {
+            if(piece.getPowerLevel() != 0) {
+                locked = true;
+            } else {
+                locked = false;
+            }
+        }
+        piece = board.getPieceOutside(this.x + direction.y, this.y + direction.x);
+        if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) && (piece instanceof Comparator || piece instanceof Repeater)) {
+            if(piece.getPowerLevel() != 0) {
+                locked = true;
+            } else {
+                locked = false;
+            }
+        }
+
         if(pow != powered) {
             newState = pow;
             tick = true;
@@ -93,14 +112,22 @@ public class Repeater extends Piece {
         if(tick) {
             if (delayTimeout++ >= delay + 1) {
                 delayTimeout = 0;
-                powered = newState;
                 tick = false;
-                updateRedstone();
+                updateRedstone(newState);
             }
         }
     }
 
-    public void updateRedstone() {
+    public void updateRedstone(boolean powered) {
+        Direction direction = Direction.directions[1 << rotation];
+        boolean pow = false;
+        Piece piece = board.getPieceOutside(this.x - direction.x, this.y - direction.y);
+        if(piece != null) {
+            if(piece.getPowerLevel() != 0 || piece.hardPowerLevel() != 0) {
+                pow = true;
+            }
+        }
+        this.powered = powered || pow;
         Piece[] pieces = board.getSurroundingSpaces(x, y);
         for (int x = 0; x < 4; x++) {
             if (pieces[x] != null) {
@@ -112,6 +139,6 @@ public class Repeater extends Piece {
 
     @Override
     public int getExtraData() {
-        return (powered ? 1 : 0) | (rotation) << 1 | delay << 3;
+        return (powered ? 1 : 0) | (rotation) << 1 | delay << 3 | (locked ? 1 : 0) << 5;
     }
 }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 
+import dev.hilligans.Main;
 import dev.hilligans.game.GameHandler;
 import dev.hilligans.game.Player;
 import dev.hilligans.game.PlayerHandler;
@@ -22,17 +23,20 @@ public class SocketTextHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        String key = session.getUri().getPath().substring(Main.path.length());
+        System.out.println(key);
         InetSocketAddress address = session.getRemoteAddress();
         NetworkInterface ni = NetworkInterface.getByInetAddress(address.getAddress());
         byte[] hardwareAddress = ni.getHardwareAddress();
-        String s = address.getHostName() + new String(hardwareAddress);
+        String s = address.getHostName();// + new String(hardwareAddress);
         playerHandler.connect(s);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-       // InetSocketAddress address = session.getRemoteAddress();
-       // address.getHostName()
+        InetSocketAddress address = session.getRemoteAddress();
+        address.getHostName();
+        System.out.println(address.getHostName());
     }
 
     @Override
@@ -57,7 +61,6 @@ public class SocketTextHandler extends TextWebSocketHandler {
             //find the game code somehow
             String gameCode = "";
             int result = gameHandler.joinGame(gameCode,player);
-
         }
     }
 

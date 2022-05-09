@@ -20,6 +20,17 @@ public class GameHandler {
         return null;
     }
 
+    public String newGame(String type) {
+        String gameCode = RandomStringUtils.randomAlphanumeric(8);
+        if(games.get(gameCode) != null) {
+            return newGame(type);
+        } else {
+            Game game = createGame(type,gameCode);
+            games.put(gameCode,game);
+        }
+        return gameCode;
+    }
+
     public String startGame(String type, Player player) {
         String gameCode = RandomStringUtils.random(8);
         if(games.get(gameCode) != null) {

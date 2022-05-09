@@ -2,31 +2,30 @@ package dev.hilligans;
 
 import dev.hilligans.ai.SimpleMoveCalculator;
 import dev.hilligans.board.*;
-import dev.hilligans.board.pieces.Comparator;
-import dev.hilligans.board.pieces.Redstone;
-import dev.hilligans.board.pieces.RedstoneTorch;
-import dev.hilligans.board.pieces.Repeater;
+import dev.hilligans.board.pieces.*;
+import dev.hilligans.game.GameHandler;
 import dev.hilligans.spring.SpringHandler;
-import dev.hilligans.util.ConsoleReader;
-import it.unimi.dsi.fastutil.ints.Int2BooleanArrayMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.function.Consumer;
 
 public class Main {
 
+    public static GameHandler gameHandler = new GameHandler();
+    public static String path = "/chesstone/play/";
+
     public static void main(String[] args) {
-       // new Thread(() -> SpringHandler.run(args)).start();
+        new Thread(() -> SpringHandler.run(args)).start();
         SimpleMoveCalculator simpleMoveCalculator = new SimpleMoveCalculator(3);
 
+      //  Server.main(args);
        // new ConsoleReader(s -> {
       //      if(s.equals("stop")) {
        //         System.exit(0);
       //      }
       //  }).start();
-        /*
+
 
         Board board = BoardBuilder.buildStandardBoard();
         //System.out.println(board.getPiece(0,1));
@@ -67,8 +66,11 @@ public class Main {
         board.tick();
         board.tick();
 
-         */
-        Board board = new Board();
+
+
+
+
+       /* Board board = new Board();
         board.setPiece(1,0,new Redstone());
         board.setPiece(1,1,new Redstone());
         board.setPiece(2,0,new Redstone());
@@ -80,6 +82,21 @@ public class Main {
         board.setPiece(1,2,comparator);
         board.setPiece(1,3,new RedstoneTorch(2));
         board.setPiece(2,2,new Redstone());
+        Repeater repeater1 = new Repeater(1);
+        repeater1.rotation = 3;
+        repeater1.delay = 3;
+        board.setPiece(3,1,repeater1);
+        Repeater repeater2 = new Repeater(1);
+        repeater2.rotation = 3;
+        repeater2.delay = 3;
+        board.setPiece(4,1,repeater2);
+        Repeater repeater3 = new Repeater(1);
+        repeater3.rotation = 3;
+        repeater3.delay = 3;
+        board.setPiece(5,1,repeater3);
+        board.setPiece(6,1, new RedstoneTorch(1));
+
+        */
 
         board.update();
         board.tick();
@@ -125,14 +142,18 @@ public class Main {
                         JSONArray r = new JSONArray();
                         rotations.put(getPos(x,y) + "",r);
                         for(int a = 0; a < rots.length; a++) {
-                           r.put(rots[a].newID);
+                            if(rots[a] != null) {
+                                r.put(rots[a].newID);
+                            }
                         }
                     }
                     if(modes.length != 0) {
                         JSONArray r = new JSONArray();
                         modeChanges.put(getPos(x,y) + "",r);
                         for(int a = 0; a < modes.length; a++) {
-                            r.put(modes[a].newID);
+                            if(modes[a] != null) {
+                                r.put(modes[a].newID);
+                            }
                         }
                     }
                 }

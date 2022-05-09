@@ -4,4 +4,4 @@ server:
     key-store-password: password
     key-store-type: pkcs12
     key-password: password
-  port: 443
+  port: 80

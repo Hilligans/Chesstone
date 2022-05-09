@@ -44,17 +44,22 @@ public class Comparator extends Piece {
     @Override
     public OtherMove[] getRotationMoves() {
         return new OtherMove[] {
-                new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | 0 << 1 | (subtract ? 1 : 0) << 3)),
-                new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | 1 << 1 | (subtract ? 1 : 0) << 3)),
-                new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | 2 << 1 | (subtract ? 1 : 0) << 3)),
-                new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | 3 << 1 | (subtract ? 1 : 0) << 3))};
+                rotation != 0 ? new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | 0 << 1 | (subtract ? 1 : 0) << 3)) : null,
+                rotation != 1 ? new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | 1 << 1 | (subtract ? 1 : 0) << 3)) : null,
+                rotation != 2 ? new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | 2 << 1 | (subtract ? 1 : 0) << 3)) : null,
+                rotation != 3 ? new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | 3 << 1 | (subtract ? 1 : 0) << 3)) : null};
     }
 
     @Override
     public OtherMove[] getModeMoves() {
-        return new OtherMove[] {
-                new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | rotation << 1 | (0) << 3)),
-                new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | rotation << 1 | (1) << 3))};
+        if(subtract) {
+            return new OtherMove[] {
+                    new OtherMove(this, build((powerLevel != 0 ? 1 : 0) | rotation << 1 | (0) << 3))
+                };
+        } else {
+            return new OtherMove[]{
+                    new OtherMove(this, build((powerLevel != 0 ? 1 : 0) | rotation << 1 | (1) << 3))};
+        }
     }
 
 

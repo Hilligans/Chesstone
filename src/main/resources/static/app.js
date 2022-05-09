@@ -6,7 +6,7 @@ function setConnected(connected) {
 
 function connect() {
     console.log("Test");
-	ws = new WebSocket('ws://localhost:80/user');
+	ws = new WebSocket('wss://localhost:80/chesstone/play/aaaaaaa');
 
 	ws.onmessage = function(data) {
 		helloWorld(data.data);
