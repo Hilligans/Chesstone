@@ -5,9 +5,11 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 
 import dev.hilligans.Main;
+import dev.hilligans.game.Game;
 import dev.hilligans.game.GameHandler;
 import dev.hilligans.game.Player;
 import dev.hilligans.game.PlayerHandler;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -18,18 +20,13 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 @Component
 public class SocketTextHandler extends TextWebSocketHandler {
 
-    public static PlayerHandler playerHandler = new PlayerHandler();
-    public static GameHandler gameHandler = new GameHandler();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        String key = session.getUri().getPath().substring(Main.path.length());
-        System.out.println(key);
         InetSocketAddress address = session.getRemoteAddress();
-        NetworkInterface ni = NetworkInterface.getByInetAddress(address.getAddress());
-        byte[] hardwareAddress = ni.getHardwareAddress();
-        String s = address.getHostName();// + new String(hardwareAddress);
-        playerHandler.connect(s);
+       // String s = address.getHostName();// + new String(hardwareAddress);
+       // Player player = Main.playerHandler.connect(s);
+       // Main.gameHandler.joinGame(s,player);
     }
 
     @Override
@@ -55,12 +52,34 @@ public class SocketTextHandler extends TextWebSocketHandler {
         }
     }
 
-    public void handlePacket(JSONObject packet, Player player) {
+    public static String resolveID(WebSocketSession session) {
+        return session.getUri().getPath().substring(Main.path.length());
+    }
+
+    public static Player getPlayer(WebSocketSession session, String name) {
+        return Main.playerHandler.getPlayer(session.getRemoteAddress().getHostName() + ":" + name);
+    }
+
+    public void handlePacket(WebSocketSession session, JSONObject packet) {
         String packetID = packet.getString("type");
-        if(packetID.equals("join")) {
-            //find the game code somehow
-            String gameCode = "";
-            int result = gameHandler.joinGame(gameCode,player);
+        if(packetID.equals("name")) {
+            Player player = getPlayer(session, packet.getString("data"));
+            String gameCode = resolveID(session);
+            int result = Main.gameHandler.joinGame(gameCode,player);
+            Game game = Main.gameHandler.getGame(gameCode);
+            if(game != null) {
+                JSONObject info = new JSONObject();
+                JSONArray array = new JSONArray();
+                array.put(game.player1.player.name).put(game.player2.player.name);
+                info.put("names",array);
+                info.put("in_progress",true);
+                info.put("type", "info");
+                game.sendPacketToPlayers(info);
+
+                JSONObject game_start = new JSONObject();
+                game_start.put("type", "game_start");
+                game.sendPacketToPlayers(game_start);
+            }
         }
     }
 

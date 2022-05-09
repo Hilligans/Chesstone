@@ -4,6 +4,7 @@ import dev.hilligans.ai.SimpleMoveCalculator;
 import dev.hilligans.board.*;
 import dev.hilligans.board.pieces.*;
 import dev.hilligans.game.GameHandler;
+import dev.hilligans.game.PlayerHandler;
 import dev.hilligans.spring.SpringHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 public class Main {
 
     public static GameHandler gameHandler = new GameHandler();
+    public static PlayerHandler playerHandler = new PlayerHandler();
     public static String path = "/chesstone/play/";
 
     public static void main(String[] args) {

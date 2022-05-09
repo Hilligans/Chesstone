@@ -39,10 +39,13 @@ public class PlayerHandler {
         activeGames.remove(players.remove(identifier));
     }
 
-    public synchronized void connect(String identifier) {
-        if(getPlayer(identifier) == null) {
-            players.put(identifier,new Player(identifier));
+    public synchronized Player connect(String identifier) {
+        Player player = getPlayer(identifier);
+        if(player == null) {
+            player = new Player(identifier);
+            players.put(identifier,player);
         }
+        return player;
     }
 
     public synchronized void updateData(String identifier, String name) {

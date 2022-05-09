@@ -10,6 +10,10 @@ public class GameHandler {
 
     public HashMap<String, Game> games = new HashMap<>();
 
+    public Game getGame(String code) {
+        return games.get(code);
+    }
+
     public Game createGame(String type, String gameCode) {
         if(type.equals("normal")) {
             Board board = BoardBuilder.buildStandardBoard();
@@ -52,9 +56,14 @@ public class GameHandler {
         if(game.started) {
             return 0;
         }
+        if(game.player1 == null) {
+            game.player1 = new GamePlayer(player);
+            game.player1.playerID = 1;
+            return  1;
+        }
         game.player2 = new GamePlayer(player);
         game.player2.playerID = 2;
-        return 1;
+        return 2;
     }
 
 }

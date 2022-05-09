@@ -2,7 +2,10 @@ package dev.hilligans.game;
 
 import dev.hilligans.board.Board;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.json.JSONObject;
+import org.springframework.web.socket.TextMessage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class Game {
@@ -57,6 +60,15 @@ public class Game {
             gameImplementation.sendMoveListToPlayer(this,player1);
         } else {
             gameImplementation.sendMoveListToPlayer(this,player2);
+        }
+    }
+
+    public void sendPacketToPlayers(JSONObject jsonObject) {
+        try {
+            player1.session.sendMessage(new TextMessage(jsonObject.toString()));
+            player2.session.sendMessage(new TextMessage(jsonObject.toString()));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
