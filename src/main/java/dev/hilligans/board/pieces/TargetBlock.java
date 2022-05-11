@@ -24,7 +24,7 @@ public class TargetBlock extends Piece {
 
     @Override
     public Direction getFacingDirection() {
-        return Direction.ALL;
+        return Direction.NONE;
     }
 
     @Override
@@ -60,6 +60,11 @@ public class TargetBlock extends Piece {
                 }
             }
         }
+    }
+
+    @Override
+    public void onPlace() {
+        update();
     }
 
     @Override
