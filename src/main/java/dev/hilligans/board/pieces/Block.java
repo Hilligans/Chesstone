@@ -49,6 +49,14 @@ public class Block extends Piece {
     }
 
     @Override
+    public String toString() {
+        return "Block{" +
+                "powerLevel=" + powerLevel +
+                ", hardPower=" + hardPower +
+                '}';
+    }
+
+    @Override
     public int getID() {
         return 2;
     }

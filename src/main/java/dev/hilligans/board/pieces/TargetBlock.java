@@ -66,4 +66,12 @@ public class TargetBlock extends Piece {
     public int getID() {
         return 4;
     }
+
+    @Override
+    public String toString() {
+        return "TargetBlock{" +
+                "powerLevel=" + powerLevel +
+                ", hardPower=" + hardPower +
+                '}';
+    }
 }

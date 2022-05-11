@@ -32,4 +32,9 @@ public class RedstoneTorch extends Piece {
     public int getID() {
         return 3;
     }
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

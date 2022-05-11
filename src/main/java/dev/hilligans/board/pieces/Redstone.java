@@ -102,4 +102,12 @@ public class Redstone extends Piece {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "Redstone{" +
+                "powerLevel=" + powerLevel +
+                ", shape=" + shape +
+                '}';
+    }
 }

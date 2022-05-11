@@ -3,6 +3,7 @@ package dev.hilligans;
 import dev.hilligans.ai.SimpleMoveCalculator;
 import dev.hilligans.board.*;
 import dev.hilligans.board.pieces.*;
+import dev.hilligans.game.Game;
 import dev.hilligans.game.GameHandler;
 import dev.hilligans.game.PlayerHandler;
 import dev.hilligans.spring.SpringHandler;
@@ -25,6 +26,18 @@ public class Main {
         new ConsoleReader(s -> {
             if(s.equals("stop")) {
                 System.exit(0);
+            } else if(s.startsWith("data")) {
+                try {
+                    s = s.substring(5);
+                    String[] vals = s.split(" ");
+                    int x = Integer.parseInt(vals[1]);
+                    int y = Integer.parseInt(vals[2]);
+                    Game game = gameHandler.getGame(vals[0]);
+                    Piece piece = game.board.getPiece(x,y);
+                    System.out.println(piece);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 

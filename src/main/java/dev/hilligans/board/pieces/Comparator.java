@@ -149,4 +149,16 @@ public class Comparator extends Piece {
         rotation = (data >> 1) &  0b11;
         subtract = ((data >> 3) & 1) == 1;
     }
+
+    @Override
+    public String toString() {
+        return "Comparator{" +
+                "rotation=" + rotation +
+                ", powerLevel=" + powerLevel +
+                ", delayTimeout=" + delayTimeout +
+                ", subtract=" + subtract +
+                ", tick=" + tick +
+                ", newState=" + newState +
+                '}';
+    }
 }

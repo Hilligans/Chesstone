@@ -1,5 +1,6 @@
 package dev.hilligans.game;
 
+import dev.hilligans.Main;
 import dev.hilligans.board.Board;
 import dev.hilligans.board.Move;
 import dev.hilligans.board.OtherMove;
@@ -25,6 +26,8 @@ public class Game {
     public boolean gamePublic = true;
     public int turn = 1;
     public String gameCode;
+
+    public GameHandler gameHandler = Main.gameHandler;
 
     public Game(Board board) {
         gameCode = RandomStringUtils.random(6);
@@ -177,6 +180,8 @@ public class Game {
         sendPacketToPlayers(jsonObject);
 
         gameRunning = false;
+        gameHandler.games.remove(gameCode);
+        gameHandler.gamePlayers.remove(this);
     }
 
     public void startGame() {

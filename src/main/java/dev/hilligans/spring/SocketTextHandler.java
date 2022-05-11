@@ -37,6 +37,12 @@ public class SocketTextHandler extends TextWebSocketHandler {
       //  System.out.println(address.getHostName());
     }
 
+
+    @Override
+    public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+        exception.printStackTrace();
+    }
+
     @Override
     public void handleTextMessage(@NotNull WebSocketSession session, @NotNull TextMessage message)
             throws InterruptedException, IOException {
@@ -72,6 +78,7 @@ public class SocketTextHandler extends TextWebSocketHandler {
                     String gameCode = resolveID(session);
                     int result = Main.gameHandler.joinGame(gameCode, player, session);
                     Game game = Main.gameHandler.getGame(gameCode);
+                    GamePlayer pl = Main.gameHandler.getPlayer(session);
 
                     if(game == null) {
                         return;
@@ -93,6 +100,12 @@ public class SocketTextHandler extends TextWebSocketHandler {
 
                     short[] board = game.board.getBoardList();
                     sendDataToPlayer(board,game,session);
+
+                    if(game.gameRunning) {
+                        if(pl.playerID == 1 || pl.playerID == 2) {
+                            game.gameImplementation.sendMoveListToPlayer(game,pl);
+                        }
+                    }
 
                     if (result == 2) {
                         game.player1.sendPacket(info);
@@ -134,6 +147,7 @@ public class SocketTextHandler extends TextWebSocketHandler {
                     response.put("type", "move_ack");
                     response.put("data", true);
                     sendPacket(session, response);
+                    game.sendPacketToPlayers(packet);
 
                     game.swapTurn();
                     short[] board = game.board.getBoardList();

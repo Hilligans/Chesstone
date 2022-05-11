@@ -66,6 +66,8 @@ public class GameHandler {
         }
 
         pl = new GamePlayer(player);
+        HashMap<Player, GamePlayer> pla = gamePlayers.computeIfAbsent(game,(a) -> new HashMap<>());
+        pla.put(player,pl);
 
         if(game.started) {
             if(!game.addSpectator(pl)) {

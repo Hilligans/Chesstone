@@ -35,4 +35,11 @@ public class Lamp extends Piece {
     public int getID() {
         return 7;
     }
+
+    @Override
+    public String toString() {
+        return "Lamp{" +
+                "extended=" + extended +
+                '}';
+    }
 }

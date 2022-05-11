@@ -154,4 +154,17 @@ public class Repeater extends Piece {
         rotation = (data >> 1) & 0b11;
         delay = (data >> 3) & 0b11;
     }
+
+    @Override
+    public String toString() {
+        return "Repeater{" +
+                "rotation=" + rotation +
+                ", powered=" + powered +
+                ", delay=" + delay +
+                ", delayTimeout=" + delayTimeout +
+                ", tick=" + tick +
+                ", newState=" + newState +
+                ", locked=" + locked +
+                '}';
+    }
 }
