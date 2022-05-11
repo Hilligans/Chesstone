@@ -10,7 +10,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
 
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new SocketTextHandler(), "/chesstone/play/{id}");
+        registry.addHandler(new SocketTextHandler(), "/chesstone/play/{id}").setAllowedOrigins("*");
     }
 
 }

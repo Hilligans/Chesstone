@@ -138,7 +138,20 @@ public class Repeater extends Piece {
     }
 
     @Override
+    public void onPlace() {
+        delayTimeout = 0;
+        tick = false;
+        updateRedstone(false);
+    }
+
+    @Override
     public int getExtraData() {
         return (powered ? 1 : 0) | (rotation) << 1 | delay << 3 | (locked ? 1 : 0) << 5;
+    }
+
+    @Override
+    public void decodeData(int data) {
+        rotation = (data >> 1) & 0b11;
+        delay = (data >> 3) & 0b11;
     }
 }

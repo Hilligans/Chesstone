@@ -13,6 +13,7 @@ public class Lamp extends Piece {
 
     @Override
     public void update() {
+        extended = false;
         Piece[] pieces = board.getSurroundingSpaces(x,y);
         for(Piece piece : pieces) {
             if(piece != null) {

@@ -1,21 +1,27 @@
 package dev.hilligans.game;
 
+import dev.hilligans.spring.SocketTextHandler;
+import org.json.JSONObject;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
+import java.util.function.Predicate;
 
 public class Player {
 
     public String name;
-    public ArrayList<WebSocketSession> sessions = new ArrayList<>();
     public Runnable callback;
     public boolean online = true;
     public boolean alive = true;
 
-    public String identifier;
-
-    public Player(String identifier) {
-        this.identifier = identifier;
+    public Player(String name) {
+        this.name = name;
     }
 
+    @Override
+    public String toString() {
+        return "Player{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }

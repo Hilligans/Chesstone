@@ -127,9 +127,14 @@ public class Comparator extends Piece {
         }
     }
 
-
-
-
+    @Override
+    public void onPlace() {
+        update();
+        delayTimeout = 0;
+        tick = false;
+        powerLevel = newState;
+        updateRedstone();
+    }
 
     private int build(int data) {
         return (short) ((team == 2 ? 1 : 0) | getID() << 1 | data << 4);
@@ -137,5 +142,11 @@ public class Comparator extends Piece {
     @Override
     public int getExtraData() {
         return (powerLevel != 0 ? 1 : 0) | rotation << 1 | (subtract ? 1 : 0) << 3;
+    }
+
+    @Override
+    public void decodeData(int data) {
+        rotation = (data >> 1) &  0b11;
+        subtract = ((data >> 3) & 1) == 1;
     }
 }

@@ -81,10 +81,13 @@ public abstract class Piece implements Cloneable {
         return 0;
     }
 
+    public void decodeData(int data) {}
+
     public short getPacket() {
         return (short) ((team == 2 ? 1 : 0) | getID() << 1 | getExtraData() << 4);
     }
 
+    public void onPlace() {}
     @Override
     public Piece clone() {
         try {

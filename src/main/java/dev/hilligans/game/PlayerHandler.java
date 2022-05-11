@@ -1,7 +1,6 @@
 package dev.hilligans.game;
 
 import org.jetbrains.annotations.Nullable;
-import org.lwjgl.system.CallbackI;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -59,5 +58,4 @@ public class PlayerHandler {
     public synchronized Player getPlayer(String identifier) {
         return players.get(identifier);
     }
-
 }

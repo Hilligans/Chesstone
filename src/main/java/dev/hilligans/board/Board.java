@@ -48,10 +48,6 @@ public class Board {
         return 7 >= x && x >= 0 && 7 >= y && y >= 0;
     }
 
-    public Piece[] getSurroundingPieces(int x, int y) {
-        return null;
-    }
-
     static Piece redstoneBlock = new RedstoneBlock();
     public Piece[] getSurroundingSpaces(int x, int y) {
         Piece[] pieces = new Piece[4];
@@ -103,6 +99,17 @@ public class Board {
         }
 
  */
+    }
+
+    public int gameWin() {
+        if (yellowKing.extended && blueKing.extended) {
+            return 0;
+        } else if (yellowKing.extended) {
+            return 2;
+        } else if (blueKing.extended) {
+            return 1;
+        }
+        return -1;
     }
 
     public void update() {
@@ -166,6 +173,11 @@ public class Board {
         setPiece(move.endX,move.endY,piece);
         setPiece(startX,startY,null);
         piece.movementController.performMove(startX,startY,move.endX,move.endY);
+    }
+
+    public void applyMove(OtherMove move) {
+        Piece piece = getPiece(move.x,move.y);
+        piece.decodeData(move.newID >> 4);
     }
 
     public short[] getBoardList() {
