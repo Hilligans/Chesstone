@@ -74,20 +74,17 @@ public class Repeater extends Piece {
                 pow = true;
             }
         }
+        locked = false;
         piece = board.getPieceOutside(this.x - direction.y, this.y - direction.x);
         if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) && (piece instanceof Comparator || piece instanceof Repeater)) {
             if(piece.getPowerLevel() != 0) {
                 locked = true;
-            } else {
-                locked = false;
             }
         }
         piece = board.getPieceOutside(this.x + direction.y, this.y + direction.x);
         if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) && (piece instanceof Comparator || piece instanceof Repeater)) {
             if(piece.getPowerLevel() != 0) {
                 locked = true;
-            } else {
-                locked = false;
             }
         }
 

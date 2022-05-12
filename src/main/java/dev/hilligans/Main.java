@@ -38,7 +38,35 @@ public class Main {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            } else if(s.startsWith("update")) {
+                try {
+                    s = s.substring(7);
+                    String[] vals = s.split(" ");
+                    int x = Integer.parseInt(vals[1]);
+                    int y = Integer.parseInt(vals[2]);
+                    Game game = gameHandler.getGame(vals[0]);
+                    Piece piece = game.board.getPiece(x,y);
+                    piece.update();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if(s.startsWith("tick")) {
+                try {
+                    s = s.substring(5);
+                    String[] vals = s.split(" ");
+                    int x = Integer.parseInt(vals[1]);
+                    int y = Integer.parseInt(vals[2]);
+                    Game game = gameHandler.getGame(vals[0]);
+                    Piece piece = game.board.getPiece(x,y);
+                    for(int a = 0; a < 4; a++) {
+                        piece.tick();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+
+
         });
 
 

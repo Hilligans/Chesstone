@@ -18,6 +18,11 @@ public class Block extends Piece {
     }
 
     @Override
+    public int getPowerLevel() {
+        return powerLevel;
+    }
+
+    @Override
     public void update() {
         int power = 0;
         int hPower = 0;

@@ -59,7 +59,7 @@ public enum Direction {
 
     public boolean facesTowards(int blockX, int blockY, int sourceX, int sourceY) {
         if(!twoSided) {
-            return sourceX - blockX == x && sourceY - blockY == y;
+            return sourceX - blockX == -x && sourceY - blockY == -y;
         } else {
             int deltaX = sourceX - blockX;
             int deltaY = sourceY - blockY;
