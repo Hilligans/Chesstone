@@ -1,5 +1,6 @@
 package dev.hilligans.board.pieces;
 
+import dev.hilligans.Main;
 import dev.hilligans.board.Piece;
 import dev.hilligans.board.movement.MovementController;
 
@@ -21,7 +22,16 @@ public class Lamp extends Piece {
                     if (piece.getPowerLevel() != 0) {
                         extended = true;
                     }
+                } else if(piece instanceof Block) {
+                    if(piece.getPowerLevel() != 0 || piece.hardPowerLevel() != 0) {
+                        extended = true;
+                    }
                 }
+            }
+        }
+        if(extended) {
+            if(Main.gameHandler.logUpdates) {
+                System.out.println("(" + x + "," + y + ") " + this);
             }
         }
     }

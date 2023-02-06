@@ -1,5 +1,6 @@
 package dev.hilligans.board.pieces;
 
+import dev.hilligans.Main;
 import dev.hilligans.board.Direction;
 import dev.hilligans.board.OtherMove;
 import dev.hilligans.board.Piece;
@@ -90,6 +91,9 @@ public class Comparator extends Piece {
         }
 
         if(poweredLevel != this.powerLevel) {
+            if(Main.gameHandler.logUpdates) {
+                System.out.println("(" + x + "," + y + ") " + this);
+            }
             newState = poweredLevel;
             tick = true;
         }
@@ -154,6 +158,7 @@ public class Comparator extends Piece {
     public String toString() {
         return "Comparator{" +
                 "rotation=" + rotation +
+                ", facing" + getFacingDirection() +
                 ", powerLevel=" + powerLevel +
                 ", delayTimeout=" + delayTimeout +
                 ", subtract=" + subtract +

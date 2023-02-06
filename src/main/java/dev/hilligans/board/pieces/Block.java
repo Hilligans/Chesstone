@@ -1,5 +1,6 @@
 package dev.hilligans.board.pieces;
 
+import dev.hilligans.Main;
 import dev.hilligans.board.Piece;
 import dev.hilligans.board.movement.PawnMovementController;
 
@@ -32,7 +33,7 @@ public class Block extends Piece {
             if (piece != null) {
                 if(piece.getFacingDirection().facesTowards(this.x,this.y,piece.x,piece.y)) {
                     if(piece.hardPowers()) {
-                        hPower = Math.max(power, piece.hardPowerLevel());
+                        hPower = Math.max(hPower, piece.hardPowerLevel());
                     } else {
                         power = Math.max(power, piece.getPowerLevel());
                     }
@@ -45,6 +46,9 @@ public class Block extends Piece {
         hardPower = hPower;
 
         if(power != old || old1 != hPower) {
+            if(Main.gameHandler.logUpdates) {
+                System.out.println("(" + x + "," + y + ") " + this);
+            }
             for(int x = 0; x < 4; x++) {
                 if(pieces[x] != null) {
                     pieces[x].update();

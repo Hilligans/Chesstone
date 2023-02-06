@@ -2,7 +2,7 @@ package dev.hilligans.board;
 
 import java.util.Objects;
 
-public class OtherMove {
+public class OtherMove implements IMove {
 
     public int newID;
     public int type;
@@ -34,5 +34,20 @@ public class OtherMove {
     @Override
     public int hashCode() {
         return Objects.hash(newID, x, y);
+    }
+
+    @Override
+    public int getType() {
+        return type;
+    }
+
+    @Override
+    public int getPos() {
+        return IMove.toPos(x,y);
+    }
+
+    @Override
+    public int getData() {
+        return newID;
     }
 }

@@ -19,9 +19,13 @@ public class ChesstoneController {
     public String create_game(HttpServletRequest request) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("game_id", Main.gameHandler.newGame("normal"));
+            String game = Main.gameHandler.newGame("normal");
+            jsonObject.put("game_id", game);
+            System.out.println("Starting new game: " + game);
             jsonObject.put("success", true);
         } catch (Exception e) {
+            System.out.println("Failed to create game: ");
+            e.printStackTrace();
             jsonObject.put("success", false);
         }
 

@@ -13,6 +13,7 @@ public class GameHandler {
     public HashMap<WebSocketSession, GamePlayer> players = new HashMap<>();
 
     public HashMap<Game, HashMap<Player, GamePlayer>> gamePlayers = new HashMap<>();
+    public boolean logUpdates = false;
 
     public Game getGame(String code) {
         return games.get(code);

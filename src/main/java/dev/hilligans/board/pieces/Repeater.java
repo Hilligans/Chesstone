@@ -1,5 +1,6 @@
 package dev.hilligans.board.pieces;
 
+import dev.hilligans.Main;
 import dev.hilligans.board.Direction;
 import dev.hilligans.board.OtherMove;
 import dev.hilligans.board.Piece;
@@ -89,6 +90,9 @@ public class Repeater extends Piece {
         }
 
         if(pow != powered) {
+            if(Main.gameHandler.logUpdates) {
+                System.out.println("(" + x + "," + y + ") " + this);
+            }
             newState = pow;
             tick = true;
         }

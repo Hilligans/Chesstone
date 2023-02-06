@@ -102,6 +102,12 @@ public class Game {
             if(newMove.equals(move)) {
                 board.applyMove(move);
                 piece.onPlace();
+                Piece[] pieces = piece.getSurroundingPieces();
+                for(Piece piece1 : pieces) {
+                    if(piece1 != null) {
+                        piece1.update();
+                    }
+                }
                 board.update();
                 for(int x = 0; x < 8; x++) {
                     board.tick();

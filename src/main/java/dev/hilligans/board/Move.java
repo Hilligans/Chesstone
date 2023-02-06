@@ -2,7 +2,7 @@ package dev.hilligans.board;
 
 import java.util.Objects;
 
-public class Move {
+public class Move implements IMove {
 
     public int startX,startY;
     public int endX,endY;
@@ -42,5 +42,20 @@ public class Move {
                 ", endX=" + endX +
                 ", endY=" + endY +
                 '}';
+    }
+
+    @Override
+    public int getType() {
+        return 0;
+    }
+
+    @Override
+    public int getPos() {
+        return IMove.toPos(startX,startY);
+    }
+
+    @Override
+    public int getData() {
+        return IMove.toPos(endX,endY);
     }
 }

@@ -64,9 +64,14 @@ public class Main {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+            } else if(s.startsWith("log-updates")) {
+                gameHandler.logUpdates = !gameHandler.logUpdates;
+                if(gameHandler.logUpdates) {
+                    System.out.println("Enabled logging all game updates");
+                } else {
+                    System.out.println("Disabled logging all game updates");
+                }
             }
-
-
         });
 
 

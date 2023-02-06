@@ -1,5 +1,6 @@
 package dev.hilligans.board.pieces;
 
+import dev.hilligans.Main;
 import dev.hilligans.board.Direction;
 import dev.hilligans.board.Piece;
 import dev.hilligans.board.movement.KnightMovementController;
@@ -54,6 +55,9 @@ public class TargetBlock extends Piece {
         hardPower = hPower;
 
         if(power != old || old1 != hPower) {
+            if(Main.gameHandler.logUpdates) {
+                System.out.println("(" + x + "," + y + ") " + this);
+            }
             for(int x = 0; x < 4; x++) {
                 if(pieces[x] != null) {
                     pieces[x].update();

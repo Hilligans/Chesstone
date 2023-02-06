@@ -1,5 +1,6 @@
 package dev.hilligans.board.pieces;
 
+import dev.hilligans.Main;
 import dev.hilligans.board.Direction;
 import dev.hilligans.board.Piece;
 import dev.hilligans.board.movement.MovementController;
@@ -84,7 +85,7 @@ public class Redstone extends Piece {
                     if (piece.hardPowerLevel() != 0) {
                         power = Math.max(power, piece.hardPowerLevel());
                     }
-                } else if(piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y)) {
+                } else if(piece.getFacingDirection().facesTowards(this.x,this.y,piece.x,piece.y)) {
                     power = Math.max(power, piece.getPowerLevel());
                 } else if(!(piece instanceof Comparator || piece instanceof Repeater)) {
                     power = Math.max(power, piece.getPowerLevel());
@@ -95,6 +96,9 @@ public class Redstone extends Piece {
         powerLevel = power;
 
         if(power != old) {
+            if(Main.gameHandler.logUpdates) {
+                System.out.println("(" + x + "," + y + ") " + this);
+            }
             for(int x = 0; x < 4; x++) {
                 if(pieces[x] != null) {
                     pieces[x].update();

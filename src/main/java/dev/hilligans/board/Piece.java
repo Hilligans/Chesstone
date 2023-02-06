@@ -62,6 +62,10 @@ public abstract class Piece implements Cloneable {
         return new OtherMove[0];
     }
 
+    public Piece[] getSurroundingPieces() {
+        return board.getSurroundingSpaces(x, y);
+    }
+
     @Override
     public String toString() {
         return "Piece{" +

@@ -97,4 +97,16 @@ public enum Direction {
         }
         return val;
     }
+
+    @Override
+    public String toString() {
+        return "Direction{" +
+                "x=" + x +
+                ", y=" + y +
+                ", otherX=" + otherX +
+                ", otherY=" + otherY +
+                ", redstoneShape=" + redstoneShape +
+                ", twoSided=" + twoSided +
+                '}';
+    }
 }
