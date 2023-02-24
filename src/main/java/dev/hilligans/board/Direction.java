@@ -64,13 +64,13 @@ public enum Direction {
             int deltaX = sourceX - blockX;
             int deltaY = sourceY - blockY;
             if(deltaX == 0) {
-                if(deltaY == 1) {
+                if(deltaY == -1) {
                     return (redstoneShape & 1) != 0;
                 } else {
                     return (redstoneShape & 4) != 0;
                 }
             } else if(deltaY == 0) {
-                if(deltaX == 1) {
+                if(deltaX == -1) {
                     return (redstoneShape & 2) != 0;
                 } else {
                     return (redstoneShape & 8) != 0;

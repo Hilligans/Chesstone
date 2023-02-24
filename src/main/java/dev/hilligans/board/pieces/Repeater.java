@@ -2,10 +2,9 @@ package dev.hilligans.board.pieces;
 
 import dev.hilligans.Main;
 import dev.hilligans.board.Direction;
-import dev.hilligans.board.OtherMove;
+import dev.hilligans.board.StateChangeMove;
 import dev.hilligans.board.Piece;
 import dev.hilligans.board.movement.BishopMovementController;
-import dev.hilligans.board.movement.MovementController;
 
 public class Repeater extends Piece {
     
@@ -24,21 +23,21 @@ public class Repeater extends Piece {
     }
 
     @Override
-    public OtherMove[] getRotationMoves() {
-        return new OtherMove[] {
-                rotation != 0 ? new OtherMove(this,build((powered ? 1 : 0) | 0 << 1 | delay << 3)) : null,
-                rotation != 1 ? new OtherMove(this,build((powered ? 1 : 0) | 1 << 1 | delay << 3)) : null,
-                rotation != 2 ? new OtherMove(this,build((powered ? 1 : 0) | 2 << 1 | delay << 3)) : null,
-                rotation != 3 ? new OtherMove(this,build((powered ? 1 : 0) | 3 << 1 | delay << 3)) : null};
+    public StateChangeMove[] getRotationMoves() {
+        return new StateChangeMove[] {
+                rotation != 0 ? new StateChangeMove(this,build((powered ? 1 : 0) | 0 << 1 | delay << 3)) : null,
+                rotation != 1 ? new StateChangeMove(this,build((powered ? 1 : 0) | 1 << 1 | delay << 3)) : null,
+                rotation != 2 ? new StateChangeMove(this,build((powered ? 1 : 0) | 2 << 1 | delay << 3)) : null,
+                rotation != 3 ? new StateChangeMove(this,build((powered ? 1 : 0) | 3 << 1 | delay << 3)) : null};
     }
 
     @Override
-    public OtherMove[] getModeMoves() {
-        return new OtherMove[] {
-                delay != 0 ? new OtherMove(this,build((powered ? 1 : 0) | rotation << 1 | 0 << 3)) : null,
-                delay != 1 ? new OtherMove(this,build((powered ? 1 : 0) | rotation << 1 | 1 << 3)) : null,
-                delay != 2 ? new OtherMove(this,build((powered ? 1 : 0) | rotation << 1 | 2 << 3)) : null,
-                delay != 3 ? new OtherMove(this,build((powered ? 1 : 0) | rotation << 1 | 3 << 3)) : null};
+    public StateChangeMove[] getModeMoves() {
+        return new StateChangeMove[] {
+                delay != 0 ? new StateChangeMove(this,build((powered ? 1 : 0) | rotation << 1 | 0 << 3)) : null,
+                delay != 1 ? new StateChangeMove(this,build((powered ? 1 : 0) | rotation << 1 | 1 << 3)) : null,
+                delay != 2 ? new StateChangeMove(this,build((powered ? 1 : 0) | rotation << 1 | 2 << 3)) : null,
+                delay != 3 ? new StateChangeMove(this,build((powered ? 1 : 0) | rotation << 1 | 3 << 3)) : null};
     }
 
     private int build(int data) {
@@ -71,19 +70,21 @@ public class Repeater extends Piece {
         boolean pow = false;
         Piece piece = board.getPieceOutside(this.x - direction.x, this.y - direction.y);
         if(piece != null) {
-            if(piece.getPowerLevel() != 0 || piece.hardPowerLevel() != 0) {
-                pow = true;
+            if(this.getFacingDirection().facesTowards(this.x,this.y, piece.x,piece.y)) {
+                if (piece.getPowerLevel() != 0 || piece.hardPowerLevel() != 0) {
+                    pow = true;
+                }
             }
         }
         locked = false;
         piece = board.getPieceOutside(this.x - direction.y, this.y - direction.x);
-        if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) && (piece instanceof Comparator || piece instanceof Repeater)) {
+        if(piece != null && piece.getFacingDirection().facesTowards(this.x,this.y,piece.x,piece.y) && (piece instanceof Comparator || piece instanceof Repeater)) {
             if(piece.getPowerLevel() != 0) {
                 locked = true;
             }
         }
         piece = board.getPieceOutside(this.x + direction.y, this.y + direction.x);
-        if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) && (piece instanceof Comparator || piece instanceof Repeater)) {
+        if(piece != null && piece.getFacingDirection().facesTowards(this.x,this.y,piece.x,piece.y) && (piece instanceof Comparator || piece instanceof Repeater)) {
             if(piece.getPowerLevel() != 0) {
                 locked = true;
             }
@@ -114,12 +115,17 @@ public class Repeater extends Piece {
             if (delayTimeout++ >= delay + 1) {
                 delayTimeout = 0;
                 tick = false;
-                updateRedstone(newState);
+                if(!locked) {
+                    updateRedstone(newState);
+                }
             }
         }
     }
 
     public void updateRedstone(boolean powered) {
+        if(Main.gameHandler.logUpdates) {
+            System.out.println("(" + x + "," + y + ") " + this);
+        }
         Direction direction = Direction.directions[1 << rotation];
         boolean pow = false;
         Piece piece = board.getPieceOutside(this.x - direction.x, this.y - direction.y);

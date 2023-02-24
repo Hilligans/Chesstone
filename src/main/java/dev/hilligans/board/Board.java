@@ -14,6 +14,7 @@ public class Board {
 
     public Lamp yellowKing;
     public Lamp blueKing;
+    public IMove lastMove;
 
     public void setPiece(int x, int y, Piece piece) {
         board[x][y] = piece;
@@ -166,20 +167,6 @@ public class Board {
         return newBoard;
     }
 
-    public void applyMove(Move move) {
-        Piece piece = getPiece(move.startX,move.startY);
-        int startX = piece.x;
-        int startY = piece.y;
-        setPiece(move.endX,move.endY,piece);
-        setPiece(startX,startY,null);
-        piece.movementController.performMove(startX,startY,move.endX,move.endY);
-    }
-
-    public void applyMove(OtherMove move) {
-        Piece piece = getPiece(move.x,move.y);
-        piece.decodeData(move.newID >> 4);
-    }
-
     public short[] getBoardList() {
         short[] list = new short[64];
         for(int y = 0; y < 8; y++) {
@@ -189,5 +176,35 @@ public class Board {
             }
         }
         return list;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("----------------").append("\n");
+        for(int y = 7; y >= 0; y--) {
+            stringBuilder.append("|");
+            for(int x = 0; x < 8; x++) {
+                String c = board[x][y] == null ? " " : getCode(board[x][y].getID());
+                stringBuilder.append(c).append("|");
+            }
+            stringBuilder.append("\n");
+        }
+        stringBuilder.append("----------------").append("\n");
+        return stringBuilder.toString();
+    }
+
+    private static final String getCode(int a) {
+        return switch (a) {
+            case 0 -> " ";
+            case 1 -> "R";
+            case 2 -> "B";
+            case 3 -> "I";
+            case 4 -> "T";
+            case 5 -> "P";
+            case 6 -> "C";
+            case 7 -> "L";
+            default -> " ";
+        };
     }
 }

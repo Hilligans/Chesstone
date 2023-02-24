@@ -1,13 +1,12 @@
 package dev.hilligans.spring;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.util.concurrent.ExecutorService;
 
 import dev.hilligans.Main;
+import dev.hilligans.board.IMove;
 import dev.hilligans.board.Move;
-import dev.hilligans.board.OtherMove;
+import dev.hilligans.board.MoveAndChangeState;
+import dev.hilligans.board.StateChangeMove;
 import dev.hilligans.game.*;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -18,12 +17,24 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import javax.servlet.http.Cookie;
+
 @Component
 public class SocketTextHandler extends TextWebSocketHandler {
 
-
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        Cookie cookie = (Cookie)session.getAttributes().getOrDefault("chesstone_token", null);
+        if(cookie != null) {
+
+        } else {
+
+        }
+        Game game = Main.gameHandler.getGame(resolveID(session));
+        if(game == null) {
+            sendPacket(session, new JSONObject().put("type", "invalid_game"));
+            session.close();
+        }
       //  InetSocketAddress address = session.getRemoteAddress();
        // String s = address.getHostName();// + new String(hardwareAddress);
        // Player player = Main.playerHandler.connect(s);
@@ -35,6 +46,12 @@ public class SocketTextHandler extends TextWebSocketHandler {
      //   InetSocketAddress address = session.getRemoteAddress();
       //  address.getHostName();
       //  System.out.println(address.getHostName());
+        Game game = Main.gameHandler.getGame(resolveID(session));
+        GamePlayer player = Main.gameHandler.getPlayer(session);
+        if(player != null && game != null) {
+            System.out.println("Player " + player.player.name + " Disconnected");
+            game.disconnect(player.playerID);
+        }
     }
 
 
@@ -69,6 +86,9 @@ public class SocketTextHandler extends TextWebSocketHandler {
     }
 
     public synchronized void handlePacket(WebSocketSession session, JSONObject packet) {
+        if(Main.gameHandler.logPackets) {
+            System.out.println("Incoming Packet: " + packet);
+        }
         try {
             String packetID = packet.getString("type");
             switch (packetID) {
@@ -100,7 +120,6 @@ public class SocketTextHandler extends TextWebSocketHandler {
 
                     short[] board = game.board.getBoardList();
                     sendDataToPlayer(board,game,session);
-
                     if(game.gameRunning) {
                         if(pl.playerID == 1 || pl.playerID == 2) {
                             game.gameImplementation.sendMoveListToPlayer(game,pl);
@@ -108,6 +127,7 @@ public class SocketTextHandler extends TextWebSocketHandler {
                     }
 
                     if (result == 2) {
+                        data.put("player", 0);
                         game.player1.sendPacket(info);
                         game.startGame();
                     }
@@ -115,50 +135,79 @@ public class SocketTextHandler extends TextWebSocketHandler {
                 case "move" -> {
                     JSONObject obj = packet.getJSONObject("data");
                     Game game = Main.gameHandler.getGame(resolveID(session));
-                    GamePlayer player = Main.gameHandler.getPlayer(session);
-                    System.out.println(player);
-                    int type = obj.optInt("type", -1);
+                    if (game != null) {
+                        GamePlayer player = Main.gameHandler.getPlayer(session);
+                        System.out.println(player);
+                        int type = obj.optInt("type", -1);
 
-                    out:
-                    {
-                        if ((game.turn == 1 && game.player1 == player || game.turn == 2 && game.player2 == player) && type != -1) {
-                            int x = obj.getInt("idx") & 0b111;
-                            int y = (obj.getInt("idx") >> 3) & 0b111;
-                            System.out.println("Move: " + x + " " + y + " type " + type);
-                            if (type == 0) {
-                                Move move = new Move(x, y, obj.getInt("move") & 0b111, (obj.getInt("move") >> 3) & 0b111);
-                                if (game.makeMove(move)) {
-                                    break out;
+                        out:
+                        {
+                            if ((game.turn == 1 && game.player1 == player || game.turn == 2 && game.player2 == player) && type != -1) {
+                                int x = obj.getInt("idx") & 0b111;
+                                int y = (obj.getInt("idx") >> 3) & 0b111;
+                                System.out.println("Move: " + x + " " + y + " type " + type);
+                                IMove move;
+                                if (type == 0) {
+                                    move = new Move(x, y, obj.getInt("move") & 0b111, (obj.getInt("move") >> 3) & 0b111);
+                                } else if(type == 1 || type == 2) {
+                                    move = new StateChangeMove(x, y, obj.getInt("move"), type);
+                                } else {
+                                    move = new MoveAndChangeState(0, 0, 0, 0);
+                                    throw new RuntimeException();
                                 }
-                            } else {
-                                OtherMove move = new OtherMove(x, y, obj.getInt("move"), type);
-                                if (game.makeMove(move)) {
+                                if(move.makeMove(game)) {
+                                    game.handlerAfterMove();
                                     break out;
                                 }
                             }
+                            JSONObject response = new JSONObject();
+                            response.put("type", "move_ack");
+                            response.put("data", false);
+                            sendPacket(session, response);
+                            return;
                         }
                         JSONObject response = new JSONObject();
                         response.put("type", "move_ack");
-                        response.put("data", false);
+                        response.put("data", true);
                         sendPacket(session, response);
-                        return;
-                    }
-                    JSONObject response = new JSONObject();
-                    response.put("type", "move_ack");
-                    response.put("data", true);
-                    sendPacket(session, response);
-                    game.sendPacketToPlayers(packet);
+                        game.sendPacketToPlayers(packet);
 
-                    game.swapTurn();
-                    short[] board = game.board.getBoardList();
-                    game.sendBoard(board);
-                    game.sendMoveList();
+                        game.swapTurn();
+                        short[] board = game.board.getBoardList();
+                        game.sendBoard(board);
+                        game.sendMoveList();
+                        if (game.gameCode.equals(game.gameHandler.snooper)) {
+                            System.out.println(game.board);
+                        }
+                    } else {
+                        System.out.println("Invalid Move");
+                    }
                 }
 
                 case "resign" -> {
                     Game game = Main.gameHandler.getGame(resolveID(session));
                     GamePlayer player = Main.gameHandler.getPlayer(session);
                     game.resign(player.playerID);
+                }
+
+                case "chat" -> {
+                    String message = packet.getString("data");
+                    GamePlayer player = Main.gameHandler.getPlayer(session);
+                    if(player != null) {
+                        int id = player.playerID - 1;
+                        if(id >= 0) {
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("type", "chat");
+                            JSONObject data = new JSONObject();
+                            jsonObject.put("data", data);
+                            data.put("author", id);
+                            data.put("message", message);
+                            Game game = Main.gameHandler.getGame(resolveID(session));
+                            if(game != null) {
+                                game.sendCheckedPacketToPlayers(jsonObject);
+                            }
+                        }
+                    }
                 }
             }
         } catch (Exception e) {
@@ -167,6 +216,9 @@ public class SocketTextHandler extends TextWebSocketHandler {
     }
 
     public static void sendPacket(WebSocketSession session, JSONObject packet) {
+        if(Main.gameHandler.logPackets) {
+            System.out.println("Outgoing Packet: " + packet);
+        }
         try {
             session.sendMessage(new TextMessage(packet.toString()));
         } catch (Exception e) {

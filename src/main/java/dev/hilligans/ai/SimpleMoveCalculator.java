@@ -39,7 +39,7 @@ public class SimpleMoveCalculator extends MoveCalculator {
 
     public int recursiveCalculateMove(Board board, int player, Move move, int depth) {
         Board board1 = board.duplicate();
-        board1.applyMove(move);
+        move.applyMove(board1);
         if(depth < this.depth) {
             player = player == 1 ? 2 : 1;
             int biggestMove = 0;

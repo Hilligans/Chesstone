@@ -4,10 +4,7 @@ import dev.hilligans.Main;
 import dev.hilligans.game.GameHandler;
 import org.json.JSONObject;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -15,20 +12,21 @@ import javax.servlet.http.HttpServletRequest;
 public class ChesstoneController {
 
     @CrossOrigin
-    @GetMapping("/chesstone/create_game")
-    public String create_game(HttpServletRequest request) {
+    @PostMapping("/chesstone/create_game")
+    public String create_game(HttpServletRequest request, @RequestBody String payload) {
+        JSONObject content = new JSONObject(payload);
+
         JSONObject jsonObject = new JSONObject();
         try {
-            String game = Main.gameHandler.newGame("normal");
-            jsonObject.put("game_id", game);
-            System.out.println("Starting new game: " + game);
+            JSONObject options = content.getJSONObject("options");
+            JSONObject clock = options.getJSONObject("clock");
+            String mode = options.optString("mode", "default");
+            jsonObject.put("game_id", Main.gameHandler.newGame(mode, content.optString("name", ""), content.optBoolean("public")));
             jsonObject.put("success", true);
         } catch (Exception e) {
-            System.out.println("Failed to create game: ");
-            e.printStackTrace();
             jsonObject.put("success", false);
+            jsonObject.put("reason", e.getMessage());
         }
-
         return jsonObject.toString();
     }
 }

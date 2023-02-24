@@ -2,15 +2,14 @@ package dev.hilligans.game;
 
 import dev.hilligans.board.Board;
 import dev.hilligans.board.Move;
-import dev.hilligans.board.OtherMove;
+import dev.hilligans.board.StateChangeMove;
 import dev.hilligans.board.Piece;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.web.socket.TextMessage;
 
 import java.util.ArrayList;
 
-public class StandardGame implements GameImplementation{
+public class StandardGame implements GameImplementation {
     @Override
     public void sendDataToPlayer(short[] board, Game game, GamePlayer player) {
         JSONObject jsonObject = new JSONObject();
@@ -67,8 +66,8 @@ public class StandardGame implements GameImplementation{
             for (int x = 0; x < 8; x++) {
                 Piece piece = board.getPiece(x,y);
                 if(piece != null && piece.team == player.playerID) {
-                    OtherMove[] rots = piece.getRotationMoves();
-                    OtherMove[] modes = piece.getModeMoves();
+                    StateChangeMove[] rots = piece.getRotationMoves();
+                    StateChangeMove[] modes = piece.getModeMoves();
                     if(rots.length != 0) {
                         JSONArray r = new JSONArray();
                         rotations.put(getPos(x,y) + "",r);

@@ -2,9 +2,8 @@ package dev.hilligans.board.pieces;
 
 import dev.hilligans.Main;
 import dev.hilligans.board.Direction;
-import dev.hilligans.board.OtherMove;
+import dev.hilligans.board.StateChangeMove;
 import dev.hilligans.board.Piece;
-import dev.hilligans.board.movement.MovementController;
 import dev.hilligans.board.movement.QueenMovementController;
 
 public class Comparator extends Piece {
@@ -43,23 +42,23 @@ public class Comparator extends Piece {
     }
 
     @Override
-    public OtherMove[] getRotationMoves() {
-        return new OtherMove[] {
-                rotation != 0 ? new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | 0 << 1 | (subtract ? 1 : 0) << 3)) : null,
-                rotation != 1 ? new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | 1 << 1 | (subtract ? 1 : 0) << 3)) : null,
-                rotation != 2 ? new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | 2 << 1 | (subtract ? 1 : 0) << 3)) : null,
-                rotation != 3 ? new OtherMove(this,build((powerLevel != 0 ? 1 : 0) | 3 << 1 | (subtract ? 1 : 0) << 3)) : null};
+    public StateChangeMove[] getRotationMoves() {
+        return new StateChangeMove[] {
+                rotation != 0 ? new StateChangeMove(this,build((powerLevel != 0 ? 1 : 0) | 0 << 1 | (subtract ? 1 : 0) << 3)) : null,
+                rotation != 1 ? new StateChangeMove(this,build((powerLevel != 0 ? 1 : 0) | 1 << 1 | (subtract ? 1 : 0) << 3)) : null,
+                rotation != 2 ? new StateChangeMove(this,build((powerLevel != 0 ? 1 : 0) | 2 << 1 | (subtract ? 1 : 0) << 3)) : null,
+                rotation != 3 ? new StateChangeMove(this,build((powerLevel != 0 ? 1 : 0) | 3 << 1 | (subtract ? 1 : 0) << 3)) : null};
     }
 
     @Override
-    public OtherMove[] getModeMoves() {
+    public StateChangeMove[] getModeMoves() {
         if(subtract) {
-            return new OtherMove[] {
-                    new OtherMove(this, build((powerLevel != 0 ? 1 : 0) | rotation << 1 | (0) << 3))
+            return new StateChangeMove[] {
+                    new StateChangeMove(this, build((powerLevel != 0 ? 1 : 0) | rotation << 1 | (0) << 3))
                 };
         } else {
-            return new OtherMove[]{
-                    new OtherMove(this, build((powerLevel != 0 ? 1 : 0) | rotation << 1 | (1) << 3))};
+            return new StateChangeMove[]{
+                    new StateChangeMove(this, build((powerLevel != 0 ? 1 : 0) | rotation << 1 | (1) << 3))};
         }
     }
 
@@ -72,14 +71,22 @@ public class Comparator extends Piece {
         int sub = 0;
         Piece piece = board.getPieceOutside(this.x - direction.x, this.y - direction.y);
         if(piece != null) {
-            poweredLevel = Math.max(poweredLevel, Math.max(piece.getPowerLevel(), piece.hardPowerLevel()));
+            if(this.getFacingDirection().facesTowards(this.x,this.y,piece.x,piece.y)) {
+                if(piece instanceof Repeater || piece instanceof Comparator) {
+                    if(piece.getFacingDirection().facesTowards(this.x,this.y,piece.x,piece.y)) {
+                        poweredLevel = Math.max(poweredLevel, Math.max(piece.getPowerLevel(), piece.hardPowerLevel()));
+                    }
+                } else {
+                    poweredLevel = Math.max(poweredLevel, Math.max(piece.getPowerLevel(), piece.hardPowerLevel()));
+                }
+            }
         }
         piece = board.getPieceOutside(this.x - direction.y, this.y - direction.x);
-        if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) || piece instanceof RedstoneBlock) {
+        if(piece != null && piece.getFacingDirection().facesTowards(this.x,this.y,piece.x,piece.y) || piece instanceof RedstoneBlock) {
             sub = Math.max(sub,Math.max(piece.getPowerLevel(),piece.hardPowerLevel()));
         }
         piece = board.getPieceOutside(this.x + direction.y, this.y + direction.x);
-        if(piece != null && piece.getFacingDirection().facesTowards(piece.x,piece.y,this.x,this.y) || piece instanceof RedstoneBlock) {
+        if(piece != null && piece.getFacingDirection().facesTowards(this.x,this.y,piece.x,piece.y) || piece instanceof RedstoneBlock) {
             sub = Math.max(sub,Math.max(piece.getPowerLevel(),piece.hardPowerLevel()));
         }
         if(subtract) {
@@ -141,7 +148,7 @@ public class Comparator extends Piece {
     }
 
     private int build(int data) {
-        return (short) ((team == 2 ? 1 : 0) | getID() << 1 | data << 4);
+        return (short) ((team - 1) | getID() << 1 | data << 4);
     }
     @Override
     public int getExtraData() {

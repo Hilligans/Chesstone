@@ -54,12 +54,12 @@ public abstract class Piece implements Cloneable {
         return 0;
     }
 
-    public OtherMove[] getModeMoves() {
-        return new OtherMove[0];
+    public StateChangeMove[] getModeMoves() {
+        return new StateChangeMove[0];
     }
 
-    public OtherMove[] getRotationMoves() {
-        return new OtherMove[0];
+    public StateChangeMove[] getRotationMoves() {
+        return new StateChangeMove[0];
     }
 
     public Piece[] getSurroundingPieces() {
@@ -77,6 +77,10 @@ public abstract class Piece implements Cloneable {
 
     public void getMoveList(ArrayList<Move> moves) {
         movementController.getMoveList(moves);
+    }
+
+    public void canDoMove(IMove move) {
+
     }
 
     public abstract int getID();

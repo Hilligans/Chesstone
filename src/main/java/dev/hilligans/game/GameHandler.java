@@ -2,25 +2,32 @@ package dev.hilligans.game;
 
 import dev.hilligans.board.Board;
 import dev.hilligans.board.BoardBuilder;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GameHandler {
 
-    public HashMap<String, Game> games = new HashMap<>();
+    public ConcurrentHashMap<String, Game> games = new ConcurrentHashMap<>();
     public HashMap<WebSocketSession, GamePlayer> players = new HashMap<>();
 
     public HashMap<Game, HashMap<Player, GamePlayer>> gamePlayers = new HashMap<>();
+    public Long2ObjectOpenHashMap<Game> id_to_games = new Long2ObjectOpenHashMap<>();
+
     public boolean logUpdates = false;
+    public boolean logPackets = false;
+    public String snooper = null;
 
     public Game getGame(String code) {
         return games.get(code);
     }
 
     public Game createGame(String type, String gameCode) {
-        if(type.equals("normal")) {
+        if(type.equals("default")) {
             Board board = BoardBuilder.buildStandardBoard();
             Game game = new Game(board);
             game.gameCode = gameCode;
@@ -29,13 +36,15 @@ public class GameHandler {
         return null;
     }
 
-    public String newGame(String type) {
+    public String newGame(String type, String name, boolean isPublic) {
         String gameCode = RandomStringUtils.randomAlphanumeric(8);
         if(games.get(gameCode) != null) {
-            return newGame(type);
+            return newGame(type, name, isPublic);
         } else {
             System.out.println("New Game Created: " + gameCode);
             Game game = createGame(type,gameCode);
+            game.gameName = name;
+            game.gamePublic = isPublic;
             games.put(gameCode,game);
         }
         return gameCode;
@@ -88,6 +97,16 @@ public class GameHandler {
         game.player2 = pl;
         pl.playerID = 2;
         return 2;
+    }
+
+    public ArrayList<Game> getPublicGames() {
+        ArrayList<Game> games = new ArrayList<>();
+        this.games.forEach((s, game) -> {
+            if(game.gamePublic) {
+                games.add(game);
+            }
+        });
+        return games;
     }
 
     public synchronized GamePlayer getPlayer(WebSocketSession session) {

@@ -11,136 +11,40 @@ public class QueenMovementController extends MovementController {
 
     @Override
     public void getMoveList(ArrayList<Move> moves) {
-        super.getMoveList(moves);
+        addMoves(1, 1, moves);
+        addMoves(-1, 1, moves);
+        addMoves(1, -1, moves);
+        addMoves(-1, -1, moves);
+
+        addMoves(1, 0, moves);
+        addMoves(-1, 0, moves);
+        addMoves(0, 1, moves);
+        addMoves(0, -1, moves);
+    }
+
+    public void addMoves(int mulX, int mulY, ArrayList<Move> moves) {
         int x = piece.x;
         int y = piece.y;
         Board board = piece.board;
-        boolean posX = true;
-        boolean negX = true;
-        boolean posY = true;
-        boolean negY = true;
-        for(int a = 1; a < 8; a++) {
-            if(a + x < 8 && a + y < 8) {
-                if(posX) {
-                    Piece piece = board.getPiece(a + x,y + a);
-                    if(piece != null) {
-                        posX = false;
-                        if (piece.canBeCapturedBy(this.piece)) {
-                            moves.add(new Move(this.piece,a + x,a + y));
-                        }
-                    } else {
-                        moves.add(new Move(this.piece,a + x,a + y));
-                    }
-                }
-            }
-
-            if(x - a >= 0 && a + y < 8) {
-                if(negX) {
-                    Piece piece = board.getPiece(x - a,y + a);
-                    if(piece != null) {
-                        negX = false;
-                        if (piece.canBeCapturedBy(this.piece)) {
-                            moves.add(new Move(this.piece,x - a,y + a));
-                        }
-                    } else {
-                        moves.add(new Move(this.piece,x - a,y + a));
-                    }
-                }
-            }
-
-            if(x + a < 8 && y - a >= 0) {
-                if(posY) {
-                    Piece piece = board.getPiece(x + a,y - a);
-                    if(piece != null) {
-                        posY = false;
-                        if (piece.canBeCapturedBy(this.piece)) {
-                            moves.add(new Move(this.piece,x + a,y - a));
-                        }
-                    } else {
-                        moves.add(new Move(this.piece,x + a,y - a));
-                    }
-                }
-            }
-
-            if(x - a >= 0 && y - a >= 0) {
-                if(negY) {
-                    Piece piece = board.getPiece(x - a,y - a);
-                    if(piece != null) {
-                        negY = false;
-                        if (piece.canBeCapturedBy(this.piece)) {
-                            moves.add(new Move(this.piece,x - a,y - a));
-                        }
-                    } else {
-                        moves.add(new Move(this.piece,x - a,y - a));
-                    }
-                }
-            }
-        }
-        posX = true;
-        negX = true;
-        posY = true;
-        negY = true;
-        for(int a = 1; a < 8; a++) {
-            if(a + x < 8) {
-                if(posX) {
-                    Piece piece = board.getPiece(a + x,y);
-                    if(piece != null) {
-                        posX = false;
-                        if (piece.canBeCapturedBy(this.piece)) {
-                            moves.add(new Move(this.piece,a + x,y));
-                        }
-                    } else {
-                        moves.add(new Move(this.piece,a + x,y));
-                    }
-                }
-            }
-
-            if(x - a >= 0) {
-                if(negX) {
-                    Piece piece = board.getPiece(x - a,y);
-                    if(piece != null) {
-                        negX = false;
-                        if (piece.canBeCapturedBy(this.piece)) {
-                            moves.add(new Move(this.piece,x - a,y));
-                        }
-                    } else {
-                        moves.add(new Move(this.piece,x - a,y));
-                    }
-                }
-            }
-
-            if(y + a < 8) {
-                if(posY) {
-                    Piece piece = board.getPiece(x,y + a);
-                    if(piece != null) {
-                        posY = false;
-                        if (piece.canBeCapturedBy(this.piece)) {
-                            moves.add(new Move(this.piece,x,y + a));
-                        }
-                    } else {
-                        moves.add(new Move(this.piece,x,y + a));
-                    }
-                }
-            }
-
-            if(y - a >= 0) {
-                if(negY) {
-                    Piece piece = board.getPiece(x,y - a);
-                    if(piece != null) {
-                        negY = false;
-                        if (piece.canBeCapturedBy(this.piece)) {
-                            moves.add(new Move(this.piece,x,y - a));
-                        }
-                    } else {
+        for(int a = 1; a < bounds.getSize(); a++) {
+            if(bounds.isInBounds(x + a * mulX, y + a * mulY)) {
+                Piece piece = board.getPiece(x,y - a);
+                if(piece != null) {
+                    if (piece.canBeCapturedBy(this.piece)) {
                         moves.add(new Move(this.piece,x,y - a));
                     }
+                    return;
+                } else {
+                    moves.add(new Move(this.piece,x,y - a));
                 }
+            } else {
+                return;
             }
         }
     }
 
     @Override
-    public void performMove(int startX, int startY, int endX, int endY) {
+    public void performMove(int startX, int startY, int endX, int endY, Piece endPiece) {
         int x = Integer.compare(0, startX - endX);
         int y = Integer.compare(0, startY - endY);
         int length = Math.max(Math.abs(startX - endX), Math.abs(startY - endY));

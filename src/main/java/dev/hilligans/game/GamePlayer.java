@@ -14,11 +14,67 @@ public class GamePlayer {
     public Game game;
 
     public ArrayList<WebSocketSession> sessions = new ArrayList<>();
+    public long identifier;
     public int playerID;
+
+    public long time = -1;
+    public long timeMark = 0;
 
     public GamePlayer(Player player) {
         this.player = player;
     }
+
+    public GamePlayer setGame(Game game) {
+        this.game = game;
+        return this;
+    }
+
+    /**
+     *
+     * @param time end time in milliseconds
+     */
+    public GamePlayer setTime(long time) {
+        this.time = time;
+        return this;
+    }
+
+    public synchronized long getTime() {
+        long remaining = time;
+        if(remaining < 0) {
+            remaining = 0;
+        }
+        return remaining;
+    }
+
+    public synchronized boolean swapTime(boolean myTurn, float increment) {
+        long currentTime = System.currentTimeMillis();
+        if(timeMark != 0) {
+            long dif = timeMark - currentTime;
+            time += dif;
+        }
+        if(getTime() == 0) {
+            return false;
+        }
+        if(myTurn) {
+            timeMark = currentTime;
+        } else {
+            timeMark = 0;
+            time += increment * 1000;
+        }
+        return true;
+    }
+
+    public synchronized boolean peekTime() {
+        long currentTime = System.currentTimeMillis();
+        if(timeMark != 0) {
+            long dif = timeMark - currentTime;
+            if(time + dif < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     public synchronized void sendPacket(JSONObject packet) {
         sessions.removeIf(session -> !session.isOpen());
@@ -30,8 +86,10 @@ public class GamePlayer {
     }
 
     public synchronized void addSession(WebSocketSession session, GameHandler gameHandler) {
-        sessions.add(session);
-        this.handler = gameHandler;
-        handler.players.put(session,this);
+        if(!sessions.contains(session)) {
+            sessions.add(session);
+            this.handler = gameHandler;
+            handler.players.put(session, this);
+        }
     }
 }
