@@ -1,6 +1,7 @@
 package dev.hilligans.board.pieces;
 
 import dev.hilligans.Main;
+import dev.hilligans.board.BoardBuilder;
 import dev.hilligans.board.Direction;
 import dev.hilligans.board.Piece;
 import dev.hilligans.board.movement.MovementController;
@@ -11,8 +12,13 @@ public class Redstone extends Piece {
     public int shape;
 
     public Redstone() {
-        super(0, new MovementController());
+        this(0, BoardBuilder.EMPTY_MOVEMENT_CONTROLLER);
     }
+
+    public Redstone(int team, MovementController movementController) {
+        super(team, movementController);
+    }
+
 
     @Override
     public boolean canBeCapturedBy(Piece piece) {
@@ -43,6 +49,15 @@ public class Redstone extends Piece {
     @Override
     public int getExtraData() {
         return powerLevel | shape << 4;
+    }
+
+    @Override
+    public Piece copy() {
+        Redstone redstone = new Redstone();
+        redstone.setDataFrom(this);
+        redstone.powerLevel = powerLevel;
+        redstone.shape = shape;
+        return redstone;
     }
 
     @Override

@@ -21,9 +21,9 @@ public class Token {
 
     public Token(BsonDocument document) {
         this.token = document.getString("token").getValue();
-        this.expiryDateSeconds = document.getInt64("expiry").longValue();
+        this.expiryDateSeconds = document.getInt64("expiry").getValue();
         this.identifier = document.getString("identifier").getValue();
-        this.owner = document.getInt64("owner").longValue();
+        this.owner = document.getInt64("owner").getValue();
     }
 
     public BsonDocument write() {

@@ -1,10 +1,12 @@
 package dev.hilligans.board.pieces;
 
 import dev.hilligans.Main;
+import dev.hilligans.board.BoardBuilder;
 import dev.hilligans.board.Direction;
 import dev.hilligans.board.StateChangeMove;
 import dev.hilligans.board.Piece;
 import dev.hilligans.board.movement.BishopMovementController;
+import dev.hilligans.board.movement.MovementController;
 
 public class Repeater extends Piece {
     
@@ -18,7 +20,11 @@ public class Repeater extends Piece {
     public boolean locked;
 
     public Repeater(int team) {
-        super(team, new BishopMovementController());
+        this(team, BoardBuilder.STANDARD_BISHOP_CONTROLLER);
+    }
+
+    public Repeater(int team, MovementController movementController) {
+        super(team, movementController);
         rotation = team == 2 ? 2 : 0;
     }
 
@@ -149,6 +155,21 @@ public class Repeater extends Piece {
         delayTimeout = 0;
         tick = false;
         updateRedstone(false);
+    }
+
+    @Override
+    public Piece copy() {
+        Repeater repeater = new Repeater(team);
+        repeater.setDataFrom(this);
+        repeater.rotation = rotation;
+        repeater.powered = powered;
+        repeater.delay = delay;
+        repeater.delayTimeout = delayTimeout;
+        repeater.tick = tick;
+        repeater.newState = newState;
+        repeater.locked = locked;
+
+        return repeater;
     }
 
     @Override

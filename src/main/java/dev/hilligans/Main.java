@@ -1,20 +1,20 @@
 package dev.hilligans;
 
+import dev.hilligans.ai.MoveBook;
 import dev.hilligans.ai.SimpleMoveCalculator;
 import dev.hilligans.board.*;
 import dev.hilligans.board.pieces.*;
+import dev.hilligans.game.AccountHandler;
 import dev.hilligans.game.Game;
 import dev.hilligans.game.GameHandler;
 import dev.hilligans.game.PlayerHandler;
 import dev.hilligans.spring.SpringHandler;
+import dev.hilligans.storage.DataBaseMoveContainer;
 import dev.hilligans.storage.Database;
 import dev.hilligans.storage.GameResult;
 import dev.hilligans.util.ArgumentContainer;
 import dev.hilligans.util.ConsoleParser;
 import dev.hilligans.util.ConsoleReader;
-import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -22,19 +22,28 @@ import java.util.function.Consumer;
 
 public class Main {
 
-    public static GameHandler gameHandler = new GameHandler();
-    public static PlayerHandler playerHandler = new PlayerHandler();
+    public static final GameHandler gameHandler = new GameHandler();
+    public static final PlayerHandler playerHandler = new PlayerHandler();
+    public static final AccountHandler accountHandler = new AccountHandler();
+
+
     public static String path = "/chesstone/play/";
     public static final int START_USER_RATING = 0;
     public static ArgumentContainer argumentContainer;
+    public static boolean allowUnauthorizedPlayersToPlayGames = false;
 
     public static final int tokenExpiryTime = 604800;
+
+    public static final String[] gameModes = new String[] {"default"};
+
 
     public static void main(String[] args) {
         argumentContainer = new ArgumentContainer(args);
 
-        new Thread(() -> SpringHandler.run(args)).start();
-        SimpleMoveCalculator simpleMoveCalculator = new SimpleMoveCalculator(3);
+
+
+        //new Thread(() -> SpringHandler.run(args)).start();
+        SimpleMoveCalculator simpleMoveCalculator = new SimpleMoveCalculator(4);
 
         ConsoleParser consoleParser = new ConsoleParser();
         consoleParser.addCommand("stop", "Stops the server", 0, s -> System.exit(0));
@@ -43,7 +52,7 @@ public class Main {
                 int x = Integer.parseInt(args1[1]);
                 int y = Integer.parseInt(args1[2]);
                 Game game = gameHandler.getGame(args1[0]);
-                Piece piece = game.board.getPiece(x, y);
+                Piece piece = game.getBoard().getPiece(x, y);
                 System.out.println(piece);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -69,7 +78,7 @@ public class Main {
                         int x = Integer.parseInt(vals[1]);
                         int y = Integer.parseInt(vals[2]);
                         Game game = gameHandler.getGame(vals[0]);
-                        Piece piece = game.board.getPiece(x, y);
+                        Piece piece = game.getBoard().getPiece(x, y);
                         System.out.println(piece);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -81,7 +90,7 @@ public class Main {
                         int x = Integer.parseInt(vals[1]);
                         int y = Integer.parseInt(vals[2]);
                         Game game = gameHandler.getGame(vals[0]);
-                        Piece piece = game.board.getPiece(x, y);
+                        Piece piece = game.getBoard().getPiece(x, y);
                         piece.update();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -93,7 +102,7 @@ public class Main {
                         int x = Integer.parseInt(vals[1]);
                         int y = Integer.parseInt(vals[2]);
                         Game game = gameHandler.getGame(vals[0]);
-                        Piece piece = game.board.getPiece(x, y);
+                        Piece piece = game.getBoard().getPiece(x, y);
                         for (int a = 0; a < 4; a++) {
                             piece.tick();
                         }
@@ -139,5 +148,9 @@ public class Main {
                 e.printStackTrace();
             }
         });
+
+        //MoveBook.setupOpenings();
+        //DataBaseMoveContainer moveContainer = new DataBaseMoveContainer();
+        //System.out.println("Openings: " + Database.getInstance().getOpeningWithMoves(moveContainer));
     }
 }

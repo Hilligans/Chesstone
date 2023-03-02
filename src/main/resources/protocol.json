@@ -1,0 +1,193 @@
+{
+    "server_headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true"
+    },
+    "http_endpoints": {
+        "/login": {
+            "method": "GET",
+            "parameters": {
+                "return_url": "string: The URL to return the user to after the login flow."
+            },
+            "returns": {
+                "url": "string: A URL provided for the login process."
+            },
+            "__handling": [
+                "Upon receiving a request to `/login` the server must perform the following steps:",
+                "1. Take note of the request's `Origin` header.",
+                "2. Return a URL to a login flow with the following behaviour:",
+                "2.a. Authenticate the user.",
+                "2.b. Set an authentication cookie* on the user's browser with `SameSite=None;Secure;HttpOnly` set, as well as an appropriate `Expires` and/or `Max-Age` value.",
+                "2.c. Return the user to the <return_url>.",
+                
+                "*NOTE: The authentication cookie must only be valid for authorizing requests from the same Origin as initiated the login flow."
+            ]
+        },
+        "/account": {
+            "method": "GET",
+            "returns": {
+                "logged_in": "boolean: whether the user is logged in.",
+                "reason": "string?: if the user is not logged in, why? (ex. 'Session Expired', 'Banned', etc.)",
+                "name": "string: the name of the logged in user.",
+                "id": "string: the unique ID of the logged in user.",
+                "current_game": "string?: If the user is connected to a game, that game's ID."
+            }
+        },
+        "/user": {
+            "method": "GET",
+            "parameters": {
+                "id": "string: the user's unique ID."
+            },
+            "returns": {
+                "name": "string: the user's name.",
+                "avatar": "string?: the URL to the user's avatar image.",
+                "current_game": "string?: the ID of the game they're in, if it's public."
+            }
+        },
+        "/create_game": {
+            "method": "POST",
+            "parameters": {
+                "public": "boolean: whether to make the game public.",
+                "name": "string: a custom name for the game in the list.",
+                "options": {
+                    "mode": "string: the game mode, can be one of ['default'] (more will be added in future)",
+                    "clock": {
+                        "enabled": "boolean: whether to use the chess clock",
+                        "initial": "number: the number of seconds the chess clock starts at for each player",
+                        "increment": "number: the number of seconds to add to their clock when a player finished their turn"
+                    }
+                }
+            },
+            "returns": {
+                "success": "boolean: true if game was created",
+                "reason": "string?: if success is false, the reason.",
+                "game_id": "string: game id"
+            }
+        },
+        "/list_games": {
+            "method": "GET",
+            "returns": {
+                "games": [
+                    {
+                        "id": "string: the game id",
+                        "game_name": "string: the game's custom name",
+                        "in_progress": "boolean: Whether the game is currently in progress.",
+                        "names": "[string, string]: The player name(s)."
+                    }
+                ]
+            }
+        },
+        "/play/<game id>": "[WebSocket Connection]"
+    },
+
+    "ws_messages": [
+
+        "__ Section: Server -> Client __",
+
+        {
+            "type": "info",
+            "__desc": "Provides the game information to the client after joining (or if one of these things changes).",
+            "data": {
+                "names": "[string, string]: The players' names.",
+                "ids": "[string?, string?]: The IDs of the players.",
+                "player": "number: which player the client is. -1 for spectator, 0 for player 1, and 1 for player 2.",
+                "in_progress": "boolean: Whether the game is currently in progress."
+            }
+        },
+        {
+            "type": "game_start",
+            "__desc": "Notifies the client that the game has started.",
+            "data": null
+        },
+        {
+            "type": "game",
+            "__desc": "Sent when the client joins the game or one of these values changes.",
+            "data": {
+                "player": "number: current player, 0 = BLUE, 1 = YELLOW",
+                "turn": "number: 0 indexed"
+            }
+        },
+        {
+            "type": "clock",
+            "__desc": "Updates the chess clock values. Only needs to be sent after a turn change to account for latency.",
+            "data": "[number, number]: The clock values in seconds."
+        },
+        {
+            "type": "board",
+            "__desc": "Issued to the client whenever the board state changes",
+            "data": "number[64]: The board"
+        },
+        {
+            "type": "moves",
+            "__desc": "Issued to the client whenever the available moves change",
+            "data": {
+                "moves": {
+                    "[number]": "number[]: The available moves for the given index"
+                },
+                "modes": {
+                    "[number]": "number[]: The mode changes available for the given index, as piece IDs"
+                },
+                "rotations": {
+                    "[number]": "number[]: The rotation changes available for the given index, as piece IDs"
+                }
+            }
+        },
+        {
+            "type": "game_over",
+            "data": {
+                "winner": "number: 0 = BLUE, 1 = YELLOW",
+                "reason": "string: reason for game over"
+            }
+        },
+        {
+            "type": "move_ack",
+            "__desc": "Acknowledges a move and tells the client if it was valid.",
+            "data": "boolean: true if the move was valid"
+        },
+        {
+            "type": "invalid_game",
+            "__desc": "Indicates that the client has connected to an invalid game ID.",
+            "data": null
+        },
+        {
+            "type": "server_message",
+            "__desc": "Generic server message, will be displayed to the user.",
+            "data": "string: the message to display."
+        },
+        {
+            "type": "chat",
+            "__desc": "Issued to all clients whenever a chat message is sent.",
+            "data": {
+                "author": "number: -1 = SYSTEM, 0 = BLUE, 1 = YELLOW",
+                "name": "string?: An author name override, usually for custom names on system messages.",
+                "message": "string: the chat message."
+            }
+        },
+
+
+
+        "__ Section: Client -> Server __",
+        
+        {
+            "type": "name",
+            "__desc": "Sends the client's name to the server. Sent after joining or when changing names.",
+            "data": "string: The client's name"
+        },
+        {
+            "type": "move",
+            "data": {
+                "type": "number: 0 = MOVE, 1 = ROTATE, 2 = MODE_CHANGE",
+                "idx": "number: the index of the piece to move, rotate, or mode change",
+                "move": "number: the move to make (either destination index or piece ID)"
+            }
+        },
+        {
+            "type": "resign",
+            "data": null
+        },
+        {
+            "type": "chat",
+            "data": "string: The chat message to send."
+        }
+    ]
+}

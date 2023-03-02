@@ -3,6 +3,9 @@ package dev.hilligans.storage;
 import dev.hilligans.Main;
 import org.bson.*;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class User {
 
     public long id;
@@ -10,7 +13,8 @@ public class User {
     public String identifier;
     public String avatarPath;
     public boolean banned = false;
-    public int rating = Main.START_USER_RATING;
+
+    public HashMap<String, Integer> ratings = new HashMap<>();
 
 
     public User(long id, String username, String identifier, String avatarPath) {
@@ -18,6 +22,14 @@ public class User {
         this.username = username;
         this.identifier = identifier;
         this.avatarPath = avatarPath;
+        withDefaultRatings();
+    }
+
+    public User withDefaultRatings() {
+        for(String gameType : Main.gameModes) {
+            ratings.put(gameType, Main.START_USER_RATING);
+        }
+        return this;
     }
 
     public User setBanned(boolean banned) {
@@ -25,8 +37,8 @@ public class User {
         return this;
     }
 
-    public User setRating(int rating) {
-        this.rating = rating;
+    public User setRating(String gameMode, int rating) {
+        ratings.put(gameMode, rating);
         return this;
     }
 
@@ -39,12 +51,16 @@ public class User {
     }
 
     public User(BsonDocument document) {
-        this.id = document.getInt64("userID").longValue();
-        this.username = document.getString("name").toString();
-        this.identifier = document.getString("identifier").toString();
-        this.avatarPath = document.getString("avatar").toString();
+        this.id = document.getInt64("userID").getValue();
+        this.username = document.getString("name").getValue();
+        this.identifier = document.getString("identifier").getValue();
+        this.avatarPath = document.getString("avatar").getValue();
         this.banned = document.getBoolean("banned", new BsonBoolean(false)).getValue();
-        this.rating = document.getInt32("rating", new BsonInt32(Main.START_USER_RATING)).intValue();
+
+        BsonDocument ratings = document.getDocument("ratings", new BsonDocument());
+        for(String gameType : Main.gameModes) {
+            this.ratings.put(gameType, ratings.getInt32(gameType, new BsonInt32(Main.START_USER_RATING)).getValue());
+        }
     }
 
     public BsonDocument write() {
@@ -54,7 +70,13 @@ public class User {
         document.put("identifier", new BsonString(identifier));
         document.put("avatar", new BsonString(avatarPath));
         document.put("banned", new BsonBoolean(banned));
-        document.put("rating", new BsonInt32(rating));
+
+        BsonDocument ratings = new BsonDocument();
+        for(String key : this.ratings.keySet()) {
+            ratings.put(key, new BsonInt32(this.ratings.get(key)));
+        }
+        document.put("ratings", ratings);
+
         return document;
     }
 }

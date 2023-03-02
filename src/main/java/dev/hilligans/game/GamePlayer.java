@@ -20,8 +20,9 @@ public class GamePlayer {
     public long time = -1;
     public long timeMark = 0;
 
-    public GamePlayer(Player player) {
+    public GamePlayer(Player player, long identifier) {
         this.player = player;
+        this.identifier = identifier;
     }
 
     public GamePlayer setGame(Game game) {

@@ -1,9 +1,11 @@
 package dev.hilligans.board.pieces;
 
 import dev.hilligans.Main;
+import dev.hilligans.board.BoardBuilder;
 import dev.hilligans.board.Direction;
 import dev.hilligans.board.Piece;
 import dev.hilligans.board.movement.KnightMovementController;
+import dev.hilligans.board.movement.MovementController;
 
 public class TargetBlock extends Piece {
 
@@ -11,7 +13,11 @@ public class TargetBlock extends Piece {
     public int hardPower;
 
     public TargetBlock(int team) {
-        super(team, new KnightMovementController());
+        this(team, BoardBuilder.STANDARD_KNIGHT_CONTROLLER);
+    }
+
+    public TargetBlock(int team, MovementController movementController) {
+        super(team, movementController);
     }
 
     public int hardPowerLevel() {
@@ -69,6 +75,16 @@ public class TargetBlock extends Piece {
     @Override
     public void onPlace() {
         update();
+    }
+
+    @Override
+    public Piece copy() {
+        TargetBlock targetBlock = new TargetBlock(team);
+        targetBlock.setDataFrom(this);
+        targetBlock.powerLevel = powerLevel;
+        targetBlock.hardPower = hardPower;
+
+        return targetBlock;
     }
 
     @Override

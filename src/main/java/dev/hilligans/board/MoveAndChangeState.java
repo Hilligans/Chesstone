@@ -1,6 +1,7 @@
 package dev.hilligans.board;
 
 import dev.hilligans.game.Game;
+import dev.hilligans.game.IGame;
 
 public class MoveAndChangeState implements IMove {
 
@@ -46,12 +47,12 @@ public class MoveAndChangeState implements IMove {
     }
 
     @Override
-    public boolean makeMove(Game game) {
+    public boolean makeMove(IGame game) {
         return false;
     }
 
     @Override
-    public void applyMove(Board board) {
+    public void applyMove(IBoard board) {
 
     }
 }

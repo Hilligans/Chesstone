@@ -1,32 +1,31 @@
-package dev.hilligans.game;
+package dev.hilligans.spring.packet;
 
-import dev.hilligans.board.*;
+import dev.hilligans.board.IBoard;
+import dev.hilligans.board.Move;
+import dev.hilligans.board.Piece;
+import dev.hilligans.board.StateChangeMove;
+import dev.hilligans.game.IGame;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class StandardGame implements GameImplementation {
-    @Override
-    public void sendDataToPlayer(Game game, GamePlayer player) {
-        JSONObject jsonObject = new JSONObject();
-        JSONArray data = new JSONArray();
-        data.putAll(game.getBoard().getEncodedBoardList());
-        jsonObject.put("type", "board");
-        jsonObject.put("data",data);
-        jsonObject.put("turn", game.turn);
-        try {
-            player.sendPacket(jsonObject);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+public class MovesPacket implements IPacket {
+
+    public IGame game;
+    public int playerID;
+
+    public MovesPacket(IGame game, int playerID) {
+        this.game = game;
+        this.playerID = playerID;
     }
 
+
     @Override
-    public void sendMoveListToPlayer(Game game, GamePlayer player) {
+    public String toEncodedPacket() {
         IBoard board = game.getBoard();
 
-        ArrayList<Move> moves = board.getAllValidMoves(player.playerID);
+        ArrayList<Move> moves = board.getAllValidMoves(playerID);
 
         JSONObject jsonObject = new JSONObject();
 
@@ -62,7 +61,7 @@ public class StandardGame implements GameImplementation {
         for(int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
                 Piece piece = board.getPiece(x,y);
-                if(piece != null && piece.team == player.playerID) {
+                if(piece != null && piece.team == playerID) {
                     StateChangeMove[] rots = piece.getRotationMoves();
                     StateChangeMove[] modes = piece.getModeMoves();
                     if(rots.length != 0) {
@@ -88,11 +87,8 @@ public class StandardGame implements GameImplementation {
         }
         obj.put("mode_changes",modeChanges);
         obj.put("rotations",rotations);
-        try {
-            player.sendPacket(jsonObject);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+        return obj.toString();
     }
 
     public static int getPos(int x, int y) {

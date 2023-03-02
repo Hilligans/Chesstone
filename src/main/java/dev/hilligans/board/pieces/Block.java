@@ -1,7 +1,9 @@
 package dev.hilligans.board.pieces;
 
 import dev.hilligans.Main;
+import dev.hilligans.board.BoardBuilder;
 import dev.hilligans.board.Piece;
+import dev.hilligans.board.movement.MovementController;
 import dev.hilligans.board.movement.PawnMovementController;
 
 public class Block extends Piece {
@@ -10,7 +12,11 @@ public class Block extends Piece {
     public int hardPower;
 
     public Block(int team) {
-        super(team, new PawnMovementController());
+        this(team, BoardBuilder.STANDARD_PAWN_CONTROLLER);
+    }
+
+    public Block(int team, MovementController movementController) {
+        super(team, movementController);
     }
 
     @Override
@@ -69,4 +75,20 @@ public class Block extends Piece {
     public int getID() {
         return 2;
     }
+
+    @Override
+    public Piece setDataFrom(Piece piece) {
+        return super.setDataFrom(piece);
+    }
+
+    @Override
+    public Piece copy() {
+        Block block = new Block(team);
+        block.setDataFrom(this);
+        block.hardPower = hardPower;
+        block.powerLevel = powerLevel;
+        return block;
+    }
+
+
 }

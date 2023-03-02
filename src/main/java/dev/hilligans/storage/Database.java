@@ -5,17 +5,18 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.ReplaceOptions;
 import dev.hilligans.Main;
+import dev.hilligans.board.IMove;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
-import org.bson.BsonDocument;
-import org.bson.BsonInt32;
-import org.bson.BsonInt64;
+import org.bson.*;
 import org.bson.conversions.Bson;
+import org.springframework.web.socket.WebSocketSession;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
@@ -28,6 +29,7 @@ public class Database {
     MongoCollection<BsonDocument> games;
     MongoCollection<BsonDocument> users;
     MongoCollection<BsonDocument> tokens;
+    MongoCollection<BsonDocument> openings;
 
     Long2ObjectOpenHashMap<User> userCache = new Long2ObjectOpenHashMap<>();
 
@@ -39,6 +41,7 @@ public class Database {
         games = database.getCollection("games", BsonDocument.class);
         users = database.getCollection("users", BsonDocument.class);
         tokens = database.getCollection("tokens", BsonDocument.class);
+        openings = database.getCollection("openings", BsonDocument.class);
     }
 
     public synchronized User getUser(long userID) {
@@ -52,7 +55,7 @@ public class Database {
 
     public synchronized void putUser(User user) {
         userCache.put(user.id, user);
-        users.replaceOne(Filters.eq("userID", user.id), user.write(), new UpdateOptions().upsert(true));
+        users.replaceOne(Filters.eq("userID", user.id), user.write(), new ReplaceOptions().upsert(true));
     }
 
     public synchronized void updateUserAuth(User user) {
@@ -112,6 +115,10 @@ public class Database {
         tokens.deleteMany(Filters.eq("token", token));
     }
 
+    public synchronized void invalidateTokens(long user) {
+        tokens.deleteMany(Filters.eq("user", user));
+    }
+
     public synchronized void removeOldTokens() {
         tokens.deleteMany(Filters.lt("expiry", System.currentTimeMillis()/1000));
     }
@@ -137,6 +144,17 @@ public class Database {
         return null;
     }
 
+    public static long getUserID(WebSocketSession session) {
+        Cookie cookie = (Cookie)session.getAttributes().get("chesstone_token");
+        if(cookie != null) {
+            Token token = getAccountToken(cookie.getValue());
+            if(token != null) {
+                return token.owner;
+            }
+        }
+        return 0;
+    }
+
     public static Database getInstance() {
         return DATABASE;
     }
@@ -150,5 +168,56 @@ public class Database {
 
         IDS.put("default", 1);
         STRINGS.put(1, "default");
+    }
+
+
+    public ArrayList<IMove> getOpeningWithMoves(DataBaseMoveContainer helper) {
+        Bson filter = Filters.eq("sequence", new BsonArray(helper.moves));
+        FindIterable<BsonDocument> mov = openings.find(filter);
+        BsonDocument first = mov.first();
+        if(first != null) {
+            ArrayList<IMove> possibleMoves = new ArrayList<>();
+            BsonArray moves = first.getArray("moves");
+            for(BsonValue val : moves) {
+                possibleMoves.add(GameResult.intToMove(val.asInt32().getValue()));
+            }
+            return possibleMoves;
+        }
+        return null;
+    }
+
+    public void updateMoveToOpening(DataBaseMoveContainer helper, IMove movv) {
+        Bson filter = Filters.eq("sequence", new BsonArray(helper.moves));
+        FindIterable<BsonDocument> mov = openings.find(filter);
+        BsonDocument first = mov.first();
+        int move = GameResult.moveToInt(movv);
+        if(first != null) {
+            BsonArray possibleMoves = first.getArray("moves");
+            for(BsonValue value : possibleMoves) {
+                if(value.asInt32().getValue() == move) {
+                    return;
+                }
+            }
+            possibleMoves.add(new BsonInt32(move));
+
+            first.put("moves", possibleMoves);
+            openings.replaceOne(filter, first);
+        } else {
+            BsonDocument newDoc = new BsonDocument();
+            newDoc.put("sequence", new BsonArray(helper.moves));
+            newDoc.put("moves", new BsonArray().set(0, new BsonInt32(move)));
+            openings.insertOne(newDoc);
+        }
+    }
+
+    public void addOpenings(DataBaseMoveContainer helper, DataBaseMoveContainer moves) {
+        BsonDocument newDoc = new BsonDocument();
+        newDoc.put("sequence", new BsonArray(helper.moves));
+        newDoc.put("moves", new BsonArray(moves.moves));
+        openings.insertOne(newDoc);
+    }
+
+    public void clearOpenings() {
+        openings.drop();
     }
 }

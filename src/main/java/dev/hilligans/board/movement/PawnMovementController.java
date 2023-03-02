@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class PawnMovementController extends MovementController {
     @Override
-    public void getMoveList(ArrayList<Move> moves) {
+    public void getMoveList(Piece piece, ArrayList<Move> moves) {
         int x = piece.x;
         int y = piece.y;
         Board board = piece.board;
@@ -79,7 +79,7 @@ public class PawnMovementController extends MovementController {
 
 
     @Override
-    public void performMove(int startX, int startY, int endX, int endY, Piece endPiece) {
+    public void performMove(Piece piece, int startX, int startY, int endX, int endY, Piece endPiece) {
         if(endPiece == null && startX != endX) {
             Board board = piece.board;
             if(startY == 3) {

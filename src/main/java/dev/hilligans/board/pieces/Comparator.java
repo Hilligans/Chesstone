@@ -1,9 +1,11 @@
 package dev.hilligans.board.pieces;
 
 import dev.hilligans.Main;
+import dev.hilligans.board.BoardBuilder;
 import dev.hilligans.board.Direction;
 import dev.hilligans.board.StateChangeMove;
 import dev.hilligans.board.Piece;
+import dev.hilligans.board.movement.MovementController;
 import dev.hilligans.board.movement.QueenMovementController;
 
 public class Comparator extends Piece {
@@ -16,7 +18,11 @@ public class Comparator extends Piece {
     public int newState = 0;
 
     public Comparator(int team) {
-        super(team, new QueenMovementController());
+        this(team, BoardBuilder.STANDARD_QUEEN_CONTROLLER);
+    }
+
+    public Comparator(int team, MovementController movementController) {
+        super(team, movementController);
         rotation = team == 2 ? 2 : 0;
     }
 
@@ -145,6 +151,20 @@ public class Comparator extends Piece {
         tick = false;
         powerLevel = newState;
         updateRedstone();
+    }
+
+    @Override
+    public Piece copy() {
+        Comparator comparator = new Comparator(team);
+        comparator.setDataFrom(this);
+        comparator.rotation = rotation;
+        comparator.powerLevel = powerLevel;
+        comparator.delayTimeout = delayTimeout;
+        comparator.subtract = subtract;
+        comparator.tick = tick;
+        comparator.newState = newState;
+
+        return comparator;
     }
 
     private int build(int data) {

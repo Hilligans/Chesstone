@@ -1,20 +1,19 @@
 package dev.hilligans.game;
 
 import dev.hilligans.Main;
-import dev.hilligans.board.Board;
-import dev.hilligans.board.Move;
-import dev.hilligans.board.StateChangeMove;
-import dev.hilligans.board.Piece;
+import dev.hilligans.board.*;
 import dev.hilligans.storage.GameResult;
 import dev.hilligans.storage.IGameResult;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenCustomHashMap;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONObject;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.util.ArrayList;
 
 public class Game implements IGame {
 
-    public Board board;
+    public IBoard board;
     public GameImplementation gameImplementation = new StandardGame();
     public GamePlayer player1;
     public GamePlayer player2;
@@ -31,24 +30,17 @@ public class Game implements IGame {
 
     public GameHandler gameHandler = Main.gameHandler;
 
-    public Game(Board board) {
-        gameCode = RandomStringUtils.random(6);
+    public Game(IBoard board) {
+        this.gameCode = RandomStringUtils.random(6);
         this.board = board;
     }
 
-    public void setPlayer1(GamePlayer player1) {
-        this.player1 = player1;
-    }
 
-    public void setPlayer2(GamePlayer player2) {
-        this.player2 = player2;
-    }
-
-    public void sendBoard(short[] board) {
-        gameImplementation.sendDataToPlayer(board,this,player1);
-        gameImplementation.sendDataToPlayer(board,this,player2);
+    public void sendBoard() {
+        gameImplementation.sendDataToPlayer(this,player1);
+        gameImplementation.sendDataToPlayer(this,player2);
         for(GamePlayer spectator : spectators) {
-            gameImplementation.sendDataToPlayer(board,this,spectator);
+            gameImplementation.sendDataToPlayer(this,spectator);
         }
     }
 
@@ -101,20 +93,12 @@ public class Game implements IGame {
     }
 
 
-    public void finishGame() {
-        if(player1.player.callback != null) {
-            player1.player.callback.run();
-        }
-        if(player2.player.callback != null) {
-            player2.player.callback.run();
-        }
-    }
 
     public void handlerAfterMove() {
         board.update();
         for(int x = 0; x < 8; x++) {
             board.tick();
-            int state = board.gameWin();
+            int state = IGame.getWinner(board.getAlivePlayers());
             if(state == 1 || state == 2) {
                 String winner = state == 1 ? player2.player.name : player1.player.name;
                 String looser = state == 1 ? player1.player.name : player2.player.name;
@@ -169,14 +153,13 @@ public class Game implements IGame {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("type", "game_over");
         JSONObject data = new JSONObject();
-        data.put("winner", winner);
+        data.put("winner", winner - 1);
         data.put("reason", reason);
         jsonObject.put("data", data);
         sendPacketToPlayers(jsonObject);
 
         gameRunning = false;
-        gameHandler.games.remove(gameCode);
-        gameHandler.gamePlayers.remove(this);
+        gameHandler.endGame(this);
     }
 
     public void startGame() {
@@ -194,5 +177,79 @@ public class Game implements IGame {
         gameResult.user1 = 0;
         gameResult.user2 = 0;
         return gameResult;
+    }
+
+    @Override
+    public int addPlayer(GamePlayer gamePlayer) {
+        int pl = 0;
+        if(gamePlayer.identifier != 0 || Main.allowUnauthorizedPlayersToPlayGames) {
+            if (player1 == null) {
+                player1 = gamePlayer;
+                pl = 1;
+            } else if (player2 == null) {
+                player2 = gamePlayer;
+                pl = 2;
+            }
+        }
+        if(!gamePublic) {
+            return -1;
+        }
+        gamePlayer.playerID = pl;
+        return pl;
+    }
+
+    @Override
+    public IViewer addPlayer(Account account, WebSocketSession session) {
+        return null;
+    }
+
+    @Override
+    public GamePlayer[] getGamePlayers() {
+        return new GamePlayer[] {player1, player2};
+    }
+
+    @Override
+    public IPlayer[] getPlayers() {
+        return new IPlayer[0];
+    }
+
+    @Override
+    public IPlayer getCurrentPlayersTurn() {
+        return null;
+    }
+
+    @Override
+    public boolean isStarted() {
+        return started;
+    }
+
+    @Override
+    public String getGameCode() {
+        return gameCode;
+    }
+
+    @Override
+    public IBoard getBoard() {
+        return board;
+    }
+
+    @Override
+    public float getIncrement() {
+        return increment;
+    }
+
+    @Override
+    public int getTurn() {
+        return 0;
+    }
+
+    @Override
+    public void swapTurns() {
+
+    }
+
+    @Override
+    public void sendPacketToAll(String packet) {
+
     }
 }

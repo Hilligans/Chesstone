@@ -1,7 +1,9 @@
 package dev.hilligans.game;
 
+import dev.hilligans.Main;
 import dev.hilligans.board.Board;
 import dev.hilligans.board.BoardBuilder;
+import dev.hilligans.storage.Database;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.web.socket.WebSocketSession;
@@ -16,7 +18,7 @@ public class GameHandler {
     public HashMap<WebSocketSession, GamePlayer> players = new HashMap<>();
 
     public HashMap<Game, HashMap<Player, GamePlayer>> gamePlayers = new HashMap<>();
-    public Long2ObjectOpenHashMap<Game> id_to_games = new Long2ObjectOpenHashMap<>();
+    public Long2ObjectOpenHashMap<ArrayList<IGame>> id_to_games = new Long2ObjectOpenHashMap<>();
 
     public boolean logUpdates = false;
     public boolean logPackets = false;
@@ -50,53 +52,56 @@ public class GameHandler {
         return gameCode;
     }
 
-    public String startGame(String type, Player player) {
-        String gameCode = RandomStringUtils.random(8);
-        if(games.get(gameCode) != null) {
-            return startGame(type, player);
-        } else {
-            Game game = createGame(type,gameCode);
-            game.player1 = new GamePlayer(player);
-            game.player1.playerID = 1;
-            games.put(gameCode,game);
-        }
-        return gameCode;
-    }
-
     public synchronized int joinGame(String code, Player player, WebSocketSession session) {
         Game game = games.get(code);
 
-        if(game == null) {
+        if (game == null) {
             return -1;
         }
-        GamePlayer pl = getActivePlayer(game,player);
-        if(pl != null) {
-            pl.addSession(session,this);
+        GamePlayer pl = getActivePlayer(game, player);
+        if (pl != null) {
+            pl.addSession(session, this);
             return pl.playerID;
         }
 
-        pl = new GamePlayer(player);
-        HashMap<Player, GamePlayer> pla = gamePlayers.computeIfAbsent(game,(a) -> new HashMap<>());
-        pla.put(player,pl);
+        long userID = Database.getUserID(session);
+        pl = new GamePlayer(player, userID);
 
-        if(game.started) {
-            if(!game.addSpectator(pl)) {
-                return -1;
+        int val = game.addPlayer(pl);
+        if (val != -1) {
+            pl.addSession(session, this);
+            HashMap<Player, GamePlayer> pla = gamePlayers.computeIfAbsent(game, (a) -> new HashMap<>());
+            pla.put(player, pl);
+            if(val != 0) {
+                id_to_games.computeIfAbsent(userID, (a) -> new ArrayList<>()).add(game);
             }
-            pl.addSession(session,this);
-            pl.playerID = 0;
-            return 0;
         }
-        pl.addSession(session,this);
-        if(game.player1 == null) {
-            game.player1 = pl;
-            pl.playerID = 1;
-            return  1;
+        return val;
+    }
+
+    public synchronized IViewer joinGame(String code, Account account, WebSocketSession session) {
+        IGame game = games.get(code);
+        if(game == null) {
+            return null;
         }
-        pl.addSession(session,this);
-        game.player2 = pl;
-        pl.playerID = 2;
-        return 2;
+
+        return game.addPlayer(account, session);
+    }
+
+
+
+    public synchronized void endGame(IGame game) {
+        games.remove(game.getGameCode());
+        gamePlayers.remove(game);
+
+        for(GamePlayer gamePlayer : game.getGamePlayers()) {
+            if(gamePlayer != null) {
+                ArrayList<IGame> gamesList = id_to_games.getOrDefault(gamePlayer.identifier, null);
+                if(gamesList != null) {
+                    gamesList.remove(game);
+                }
+            }
+        }
     }
 
     public ArrayList<Game> getPublicGames() {

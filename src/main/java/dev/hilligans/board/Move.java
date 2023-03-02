@@ -1,6 +1,7 @@
 package dev.hilligans.board;
 
 import dev.hilligans.game.Game;
+import dev.hilligans.game.IGame;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -63,8 +64,8 @@ public class Move implements IMove {
     }
 
     @Override
-    public boolean makeMove(Game game) {
-        Piece piece = game.board.getPiece(startX,startY);
+    public boolean makeMove(IGame game) {
+        Piece piece = game.getBoard().getPiece(startX,startY);
         ArrayList<Move> moves = new ArrayList<>();
         if(piece == null) {
             return false;
@@ -72,7 +73,7 @@ public class Move implements IMove {
         piece.getMoveList(moves);
         for(Move newMove : moves) {
             if(this.equals(newMove)) {
-                applyMove(game.board);
+                applyMove(game.getBoard());
                 piece.onPlace();
                 Piece[] pieces = piece.getSurroundingPieces();
                 for(Piece piece1 : pieces) {
@@ -86,14 +87,16 @@ public class Move implements IMove {
         return false;
     }
 
-    public void applyMove(Board board) {
-        board.lastMove = this;
+
+
+    public void applyMove(IBoard board) {
+        board.setLastMove(this);
         Piece piece = board.getPiece(this.startX,this.startY);
         Piece endPiece = board.getPiece(this.endX, this.endY);
         int startX = piece.x;
         int startY = piece.y;
         board.setPiece(this.endX,this.endY,piece);
         board.setPiece(startX,startY,null);
-        piece.movementController.performMove(startX,startY,this.endX,this.endY, endPiece);
+        piece.movementController.performMove(piece, startX,startY,this.endX,this.endY, endPiece);
     }
 }

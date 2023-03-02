@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
-public class Board {
+public class Board implements IBoard {
 
     public Piece[][] board = new Piece[8][8];
     //-1 game active,  0 draw, 1 player 1 win, 2 player 2 win
@@ -16,6 +16,7 @@ public class Board {
     public Lamp blueKing;
     public IMove lastMove;
 
+    @Override
     public void setPiece(int x, int y, Piece piece) {
         board[x][y] = piece;
         if(piece != null) {
@@ -25,8 +26,19 @@ public class Board {
     }
 
     @Nullable
+    @Override
     public Piece getPiece(int x, int y) {
         return board[x][y];
+    }
+
+    @Override
+    public IMove getLastMove() {
+        return lastMove;
+    }
+
+    @Override
+    public void setLastMove(IMove move) {
+        this.lastMove = move;
     }
 
     @Nullable
@@ -160,14 +172,16 @@ public class Board {
             for(int y = 0; y < 8; y++) {
                 Piece piece = getPiece(x,y);
                 if(piece != null) {
-                    newBoard.setPiece(x,y,piece.clone());
+                    newBoard.setPiece(x,y,piece.copy());
                 }
             }
         }
+        newBoard.yellowKing = (Lamp) newBoard.getPiece(yellowKing.x, yellowKing.y);
+        newBoard.blueKing = (Lamp) newBoard.getPiece(blueKing.x, blueKing.y);
         return newBoard;
     }
 
-    public short[] getBoardList() {
+    public short[] getEncodedBoardList() {
         short[] list = new short[64];
         for(int y = 0; y < 8; y++) {
             for (int x = 0; x < 8; x++) {
@@ -176,6 +190,11 @@ public class Board {
             }
         }
         return list;
+    }
+
+    @Override
+    public boolean[] getAlivePlayers() {
+        return new boolean[] {!yellowKing.extended, !blueKing.extended};
     }
 
     @Override

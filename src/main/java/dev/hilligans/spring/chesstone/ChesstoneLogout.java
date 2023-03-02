@@ -1,6 +1,7 @@
 package dev.hilligans.spring.chesstone;
 
 import dev.hilligans.storage.Database;
+import dev.hilligans.storage.Token;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,8 +20,12 @@ public class ChesstoneLogout {
     public void login(HttpServletRequest request, HttpServletResponse response) {
         String token = Database.getTokenString(request);
         if (token != null) {
+            Token token1 = Database.getInstance().getToken(token);
             Database.getInstance().removeToken(token);
             response.addCookie(getLogoutCookie(token));
+            if(token1 != null) {
+                Database.getInstance().invalidateTokens(token1.owner);
+            }
         }
     }
 

@@ -14,8 +14,9 @@ public abstract class Piece implements Cloneable {
     public Piece(int team, MovementController movementController) {
         this.team = team;
         this.movementController = movementController;
-        movementController.piece = this;
     }
+
+    public Piece() {}
 
     public void setPos(int x, int y) {
         this.x = x;
@@ -76,7 +77,7 @@ public abstract class Piece implements Cloneable {
     }
 
     public void getMoveList(ArrayList<Move> moves) {
-        movementController.getMoveList(moves);
+        movementController.getMoveList(this, moves);
     }
 
     public void canDoMove(IMove move) {
@@ -96,6 +97,18 @@ public abstract class Piece implements Cloneable {
     }
 
     public void onPlace() {}
+
+    public Piece setDataFrom(Piece piece) {
+        this.team = piece.team;
+        this.x = piece.x;
+        this.y = piece.y;
+        this.movementController = piece.movementController;
+        this.board = piece.board;
+        return this;
+    }
+
+    public abstract Piece copy();
+
     @Override
     public Piece clone() {
         try {

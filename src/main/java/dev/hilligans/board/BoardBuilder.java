@@ -1,8 +1,19 @@
 package dev.hilligans.board;
 
+import dev.hilligans.board.movement.*;
 import dev.hilligans.board.pieces.*;
 
 public class BoardBuilder {
+
+    public static final BishopMovementController STANDARD_BISHOP_CONTROLLER = new BishopMovementController();
+    public static final KnightMovementController STANDARD_KNIGHT_CONTROLLER = new KnightMovementController();
+    public static final PawnMovementController STANDARD_PAWN_CONTROLLER = new PawnMovementController();
+    public static final QueenMovementController STANDARD_QUEEN_CONTROLLER = new QueenMovementController();
+    public static final RookMovementController STANDARD_ROOK_CONTROLLER = new RookMovementController();
+    public static final MovementController EMPTY_MOVEMENT_CONTROLLER = new MovementController();
+
+
+
 
     public static Board buildStandardBoard() {
         Board board = new Board();

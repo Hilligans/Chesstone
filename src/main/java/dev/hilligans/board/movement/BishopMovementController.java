@@ -10,36 +10,15 @@ import java.util.ArrayList;
 public class BishopMovementController extends MovementController {
 
     @Override
-    public void getMoveList(ArrayList<Move> moves) {
-        addMoves(1,1,moves);
-        addMoves(1,-1,moves);
-        addMoves(-1,1,moves);
-        addMoves(-1,-1,moves);
-    }
-
-    public void addMoves(int mulX, int mulY, ArrayList<Move> moves) {
-        int x = piece.x;
-        int y = piece.y;
-        Board board = piece.board;
-        for(int a = 1; a < bounds.getSize(); a++) {
-            if(bounds.isInBounds(x + a * mulX, y + a * mulY)) {
-                Piece piece = board.getPiece(x,y - a);
-                if(piece != null) {
-                    if (piece.canBeCapturedBy(this.piece)) {
-                        moves.add(new Move(this.piece,x,y - a));
-                    }
-                    return;
-                } else {
-                    moves.add(new Move(this.piece,x,y - a));
-                }
-            } else {
-                return;
-            }
-        }
+    public void getMoveList(Piece piece, ArrayList<Move> moves) {
+        addMoves(piece, 1,1,moves);
+        addMoves(piece, 1,-1,moves);
+        addMoves(piece, -1,1,moves);
+        addMoves(piece, -1,-1,moves);
     }
 
     @Override
-    public void performMove(int startX, int startY, int endX, int endY, Piece endPiece) {
+    public void performMove(Piece piece, int startX, int startY, int endX, int endY, Piece endPiece) {
         int x = startX - endX > 0 ? -1 : 1;
         int y = startY - endY > 0 ? -1 : 1;
         int length = Math.max(Math.abs(startX - endX), Math.abs(startY - endY));

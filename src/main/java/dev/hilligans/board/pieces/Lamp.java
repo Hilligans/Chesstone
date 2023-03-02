@@ -1,6 +1,7 @@
 package dev.hilligans.board.pieces;
 
 import dev.hilligans.Main;
+import dev.hilligans.board.BoardBuilder;
 import dev.hilligans.board.Piece;
 import dev.hilligans.board.movement.MovementController;
 
@@ -9,7 +10,11 @@ public class Lamp extends Piece {
     public boolean extended = false;
 
     public Lamp(int team) {
-        super(team, new MovementController());
+        this(team, BoardBuilder.EMPTY_MOVEMENT_CONTROLLER);
+    }
+
+    public Lamp(int team, MovementController movementController) {
+        super(team, movementController);
     }
 
     @Override
@@ -39,6 +44,14 @@ public class Lamp extends Piece {
     @Override
     public int getExtraData() {
         return extended ? 1 : 0;
+    }
+
+    @Override
+    public Piece copy() {
+        Lamp lamp = new Lamp(team);
+        lamp.setDataFrom(this);
+        lamp.extended = extended;
+        return lamp;
     }
 
     @Override

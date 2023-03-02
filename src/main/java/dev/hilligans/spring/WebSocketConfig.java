@@ -1,7 +1,10 @@
 package dev.hilligans.spring;
 
+import dev.hilligans.storage.Database;
+import dev.hilligans.storage.Token;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -36,8 +39,14 @@ public class WebSocketConfig extends WebSocketMessageBrokerConfigurationSupport 
             public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
                 if (request instanceof ServletServerHttpRequest servletServerRequest) {
                     HttpServletRequest servletRequest = servletServerRequest.getServletRequest();
-                    Cookie token = WebUtils.getCookie(servletRequest, "chesstone_token");
-                    attributes.put("chesstone_token", token);
+                    Cookie tokenKey = WebUtils.getCookie(servletRequest, "chesstone_token");
+                    Token token = Database.getAccountToken(tokenKey.getValue());
+                    if(token == null) {
+                        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                        return false;
+                    } else {
+                        attributes.put("chesstone_token", tokenKey);
+                    }
                 }
                 return true;
             }

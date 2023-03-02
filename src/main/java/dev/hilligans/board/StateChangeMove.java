@@ -1,6 +1,7 @@
 package dev.hilligans.board;
 
 import dev.hilligans.game.Game;
+import dev.hilligans.game.IGame;
 
 import java.util.Objects;
 
@@ -54,8 +55,8 @@ public class StateChangeMove implements IMove {
     }
 
     @Override
-    public boolean makeMove(Game game) {
-        Piece piece = game.board.getPiece(x, y);
+    public boolean makeMove(IGame game) {
+        Piece piece = game.getBoard().getPiece(x, y);
         if(piece == null) {
             return false;
         }
@@ -67,7 +68,7 @@ public class StateChangeMove implements IMove {
         }
         for(StateChangeMove newMove : moves) {
             if(this.equals(newMove)) {
-                applyMove(game.board);
+                applyMove(game.getBoard());
                 piece.onPlace();
                 Piece[] pieces = piece.getSurroundingPieces();
                 for(Piece piece1 : pieces) {
@@ -81,8 +82,8 @@ public class StateChangeMove implements IMove {
         return false;
     }
 
-    public void applyMove(Board board) {
-        board.lastMove = this;
+    public void applyMove(IBoard board) {
+        board.setLastMove(this);
         Piece piece = board.getPiece(this.x,this.y);
         piece.decodeData(this.newID >> 4);
     }

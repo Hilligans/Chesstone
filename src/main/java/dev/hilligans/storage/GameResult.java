@@ -33,13 +33,13 @@ public class GameResult implements IGameResult {
 
     @Override
     public IGameResult read(BsonDocument document) {
-        user1 = document.getInt64("u1").longValue();
-        user2 = document.getInt64("u2").longValue();
+        user1 = document.getInt64("u1").getValue();
+        user2 = document.getInt64("u2").getValue();
         winner = document.getInt32("win").intValue();
         BsonArray array = document.getArray("mov");
         moves = new ArrayList<>();
         for(int x = 0; x < array.size(); x++) {
-            moves.add(intToMove(array.get(x).asInt32().intValue()));
+            moves.add(intToMove(array.get(x).asInt32().getValue()));
         }
         return this;
     }
