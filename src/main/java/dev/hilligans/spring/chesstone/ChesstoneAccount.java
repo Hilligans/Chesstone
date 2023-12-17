@@ -1,8 +1,8 @@
 package dev.hilligans.spring.chesstone;
 
-import dev.hilligans.storage.Database;
-import dev.hilligans.storage.Token;
-import dev.hilligans.storage.User;
+import dev.hilligans.chesstone.storage.Database;
+import dev.hilligans.chesstone.storage.Token;
+import dev.hilligans.chesstone.storage.User;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

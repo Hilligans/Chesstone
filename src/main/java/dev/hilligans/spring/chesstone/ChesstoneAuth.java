@@ -1,10 +1,10 @@
 package dev.hilligans.spring.chesstone;
 
 import dev.hilligans.Main;
+import dev.hilligans.chesstone.storage.Database;
+import dev.hilligans.chesstone.storage.Token;
+import dev.hilligans.chesstone.storage.User;
 import dev.hilligans.spring.oauth.OAuthData;
-import dev.hilligans.storage.Database;
-import dev.hilligans.storage.Token;
-import dev.hilligans.storage.User;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,6 @@ import org.springframework.http.*;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.view.RedirectView;

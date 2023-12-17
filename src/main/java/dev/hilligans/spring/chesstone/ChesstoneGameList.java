@@ -1,7 +1,8 @@
 package dev.hilligans.spring.chesstone;
 
 import dev.hilligans.Main;
-import dev.hilligans.game.Game;
+import dev.hilligans.chesstone.game.IGame;
+import dev.hilligans.chesstone.game.IPlayer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,25 +19,23 @@ public class ChesstoneGameList {
     public String list_games(HttpServletRequest request) {
         JSONArray jsonArray = new JSONArray();
 
-        ArrayList<Game> games = Main.gameHandler.getPublicGames();
+        ArrayList<IGame> games = Main.gameHandler.getPublicGames();
         int x = 0;
-        for(Game game : games) {
+        for(IGame game : games) {
             JSONObject jsonObject = new JSONObject();
             jsonArray.put(x++, jsonObject);
-            jsonObject.put("id", game.gameCode);
-            jsonObject.put("game_name", game.gameName);
-            jsonObject.put("in_progress", game.gameRunning);
+            jsonObject.put("id", game.getGameCode());
+            jsonObject.put("game_name", game.getGameName());
+            jsonObject.put("in_progress", game.isRunning());
 
-            JSONArray names = new JSONArray();
-            if(game.player1 != null) {
-                names.put(0, game.player1.player.name);
-            } else {
-                names.put(0, "");
-            }
-            if(game.player2 != null) {
-                names.put(1, game.player2.player.name);
-            } else {
-                names.put(1, "");
+            IPlayer[] players = game.getPlayers();
+            JSONArray names = new JSONArray(players.length);
+            for(int i = 0; i < players.length; i++) {
+                if(players[i] != null) {
+                    names.put(i, players[i].getName());
+                } else {
+                    names.put(i, "");
+                }
             }
             jsonObject.put("names", names);
         }

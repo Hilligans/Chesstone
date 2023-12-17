@@ -5,3 +5,27 @@ server:
     key-store-type: pkcs12
     key-password: password
   port: 443
+
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  security:
+    oauth2:
+      client:
+        registration:
+          discord:
+            client-id: 1076953398684958830
+            client-secret: TyrqMaKNETuRi6HHdMfTCjU9r-7eI2nB
+            clientAuthenticationMethod: get
+            authorizationGrantType: authorization_code
+            scope:
+              - identify
+            redirect-uri: "https://hilligans.dev:443/chesstone/auth"
+            clientName: Chesstone
+        provider:
+          discord:
+            authorizationUri: https://discordapp.com/api/oauth2/authorize
+            tokenUri: https://discordapp.com/api/oauth2/token
+            userInfoUri: https://discordapp.com/api/users/@me
+            user-name-attribute: username

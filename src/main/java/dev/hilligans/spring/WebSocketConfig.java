@@ -1,7 +1,8 @@
 package dev.hilligans.spring;
 
-import dev.hilligans.storage.Database;
-import dev.hilligans.storage.Token;
+import dev.hilligans.chesstone.storage.Database;
+import dev.hilligans.chesstone.storage.Token;
+import dev.hilligans.spring.chesstone.ChesstoneWebSocket;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ import java.util.Map;
 public class WebSocketConfig extends WebSocketMessageBrokerConfigurationSupport implements WebSocketConfigurer {
 
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new SocketTextHandler(), "/chesstone/play/{id}").setAllowedOrigins("*");
+        registry.addHandler(new ChesstoneWebSocket(), "/chesstone/play/{id}").setAllowedOrigins("*");
     }
 
 

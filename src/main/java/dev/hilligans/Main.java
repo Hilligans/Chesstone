@@ -1,29 +1,25 @@
 package dev.hilligans;
 
-import dev.hilligans.ai.MoveBook;
-import dev.hilligans.ai.SimpleMoveCalculator;
-import dev.hilligans.board.*;
-import dev.hilligans.board.pieces.*;
-import dev.hilligans.game.AccountHandler;
-import dev.hilligans.game.Game;
-import dev.hilligans.game.GameHandler;
-import dev.hilligans.game.PlayerHandler;
+import dev.hilligans.chesstone.ai.SimpleMoveCalculator;
+import dev.hilligans.chesstone.board.IMove;
+import dev.hilligans.chesstone.board.Move;
+import dev.hilligans.chesstone.board.Piece;
+import dev.hilligans.chesstone.game.AccountHandler;
+import dev.hilligans.chesstone.game.GameHandler;
+import dev.hilligans.chesstone.game.IGame;
+import dev.hilligans.chesstone.storage.Database;
+import dev.hilligans.chesstone.storage.GameResult;
+import dev.hilligans.chesstone.util.ArgumentContainer;
+import dev.hilligans.chesstone.util.ConsoleParser;
+import dev.hilligans.chesstone.util.ConsoleReader;
 import dev.hilligans.spring.SpringHandler;
-import dev.hilligans.storage.DataBaseMoveContainer;
-import dev.hilligans.storage.Database;
-import dev.hilligans.storage.GameResult;
-import dev.hilligans.util.ArgumentContainer;
-import dev.hilligans.util.ConsoleParser;
-import dev.hilligans.util.ConsoleReader;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class Main {
 
     public static final GameHandler gameHandler = new GameHandler();
-    public static final PlayerHandler playerHandler = new PlayerHandler();
     public static final AccountHandler accountHandler = new AccountHandler();
 
 
@@ -39,10 +35,12 @@ public class Main {
 
     public static void main(String[] args) {
         argumentContainer = new ArgumentContainer(args);
+        Move move = new Move(7, 6, 5, 4, 2);
+        IMove m = GameResult.intToMove(GameResult.moveToInt(move));
+        System.out.println(move);
+        System.out.println(m);
 
-
-
-        //new Thread(() -> SpringHandler.run(args)).start();
+        new Thread(() -> SpringHandler.run(args)).start();
         SimpleMoveCalculator simpleMoveCalculator = new SimpleMoveCalculator(4);
 
         ConsoleParser consoleParser = new ConsoleParser();
@@ -51,7 +49,7 @@ public class Main {
             try {
                 int x = Integer.parseInt(args1[1]);
                 int y = Integer.parseInt(args1[2]);
-                Game game = gameHandler.getGame(args1[0]);
+                IGame game = gameHandler.getGame(args1[0]);
                 Piece piece = game.getBoard().getPiece(x, y);
                 System.out.println(piece);
             } catch (Exception e) {
@@ -77,7 +75,7 @@ public class Main {
                         String[] vals = s.split(" ");
                         int x = Integer.parseInt(vals[1]);
                         int y = Integer.parseInt(vals[2]);
-                        Game game = gameHandler.getGame(vals[0]);
+                        IGame game = gameHandler.getGame(vals[0]);
                         Piece piece = game.getBoard().getPiece(x, y);
                         System.out.println(piece);
                     } catch (Exception e) {
@@ -89,7 +87,7 @@ public class Main {
                         String[] vals = s.split(" ");
                         int x = Integer.parseInt(vals[1]);
                         int y = Integer.parseInt(vals[2]);
-                        Game game = gameHandler.getGame(vals[0]);
+                        IGame game = gameHandler.getGame(vals[0]);
                         Piece piece = game.getBoard().getPiece(x, y);
                         piece.update();
                     } catch (Exception e) {
@@ -101,7 +99,7 @@ public class Main {
                         String[] vals = s.split(" ");
                         int x = Integer.parseInt(vals[1]);
                         int y = Integer.parseInt(vals[2]);
-                        Game game = gameHandler.getGame(vals[0]);
+                        IGame game = gameHandler.getGame(vals[0]);
                         Piece piece = game.getBoard().getPiece(x, y);
                         for (int a = 0; a < 4; a++) {
                             piece.tick();
@@ -130,16 +128,12 @@ public class Main {
                     String[] vals = s.split(" ", 3);
                     String code = vals[1].split("\\.")[0];
                     int player = Integer.parseInt(vals[1].split("\\.")[1]);
-                    Game game = gameHandler.getGame(code);
+                    IGame game = gameHandler.getGame(code);
                     if (game != null) {
                         JSONObject jsonObject = new JSONObject();
                         jsonObject.put("type", "server_message");
                         jsonObject.put("data", vals[2]);
-                        if (player == 1) {
-                            game.player1.sendPacket(jsonObject);
-                        } else if (player == 2) {
-                            game.player2.sendPacket(jsonObject);
-                        }
+                        game.sendPacketToAll(jsonObject.toString());
                     }
                 } else if(s.startsWith("purge-tokens")) {
                     Database.getInstance().removeOldTokens();

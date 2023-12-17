@@ -1,10 +1,8 @@
 package dev.hilligans.spring.chesstone;
 
-import dev.hilligans.storage.Database;
-import dev.hilligans.storage.Token;
-import org.springframework.web.bind.annotation.GetMapping;
+import dev.hilligans.chesstone.storage.Database;
+import dev.hilligans.chesstone.storage.Token;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;

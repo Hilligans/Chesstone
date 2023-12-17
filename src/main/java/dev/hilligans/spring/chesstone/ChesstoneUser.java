@@ -1,9 +1,9 @@
 package dev.hilligans.spring.chesstone;
 
 import dev.hilligans.Main;
-import dev.hilligans.game.IGame;
-import dev.hilligans.storage.Database;
-import dev.hilligans.storage.User;
+import dev.hilligans.chesstone.game.IGame;
+import dev.hilligans.chesstone.storage.Database;
+import dev.hilligans.chesstone.storage.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.web.bind.annotation.GetMapping;
